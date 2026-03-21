@@ -431,7 +431,7 @@ tr:hover td{background:rgba(191,0,255,.04)}
         <div class="field-row"><label>Contact name</label><input id="sos-name" style="flex:1" placeholder="e.g. Mom" value="Mom"/></div>
         <div class="field-row"><label>Min confidence</label>
           <select id="sos-threshold" style="flex:1">
-            <option value="60">60%</option><option value="70">70%</option>
+            <option value="55">55%</option><option value="70">70%</option>
             <option value="80" selected>80% — recommended</option><option value="90">90%</option>
           </select>
         </div>
@@ -448,7 +448,7 @@ tr:hover td{background:rgba(191,0,255,.04)}
       <div class="card">
         <div class="card-lbl">Backend URL</div>
         <div class="url-row">
-          <input class="url-inp" id="api-url" value="https://ids-till-phi-electric.trycloudflare.com/api/predict"/>
+          <input class="url-inp" id="api-url" value="https://island-guild-grant-mug.trycloudflare.com/api/predict"/>
           <button class="btn btn-ghost" onclick="testConn()" style="white-space:nowrap">Test</button>
         </div>
         <div id="conn-msg" style="font-family:var(--mono);font-size:.65rem;margin-top:6px;color:var(--muted)"></div>
