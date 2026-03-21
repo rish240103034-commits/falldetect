@@ -113,6 +113,37 @@ td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
 .log-row:last-child{border:none}
 .log-t{color:var(--bdr);flex-shrink:0}
 
+
+/* SOS styles */
+.sos-setup{background:rgba(255,61,107,.06);border:1px solid rgba(255,61,107,.2);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.sos-setup-title{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--red);margin-bottom:10px}
+.sos-input-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.sos-input-row label{font-family:var(--mono);font-size:.65rem;color:var(--muted);width:110px;flex-shrink:0}
+.sos-input-row input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:7px 11px;color:var(--txt);font-family:var(--mono);font-size:.78rem;outline:none}
+.sos-input-row input:focus{border-color:var(--red)}
+.sos-input-row select{flex:1;background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:7px 11px;color:var(--txt);font-family:var(--mono);font-size:.78rem;outline:none}
+/* SOS overlay — uses normal flow inside a tall wrapper so it fills space */
+.sos-overlay-wrap{display:none;min-height:400px;background:rgba(9,12,16,.92);position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center}
+.sos-overlay-wrap.active{display:flex}
+.sos-box{background:#0e1420;border:2px solid var(--red);border-radius:20px;padding:36px 28px;max-width:340px;width:90%;text-align:center;animation:sosPulse 1s ease-in-out infinite alternate}
+@keyframes sosPulse{from{box-shadow:0 0 20px rgba(255,61,107,.3)}to{box-shadow:0 0 50px rgba(255,61,107,.7)}}
+.sos-icon{font-size:3rem;margin-bottom:10px;animation:shake .4s ease-in-out infinite alternate}
+@keyframes shake{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+.sos-title{font-size:1.6rem;font-weight:800;color:var(--red);letter-spacing:-0.5px;margin-bottom:4px}
+.sos-sub{font-family:var(--mono);font-size:.75rem;color:var(--muted);margin-bottom:20px}
+.sos-countdown{font-size:3.5rem;font-weight:800;color:var(--red);font-family:var(--mono);line-height:1;margin-bottom:6px}
+.sos-countdown-lbl{font-family:var(--mono);font-size:.68rem;color:var(--muted);margin-bottom:22px}
+.sos-ring{width:90px;height:90px;border-radius:50%;border:4px solid rgba(255,61,107,.2);border-top-color:var(--red);animation:spin 1s linear infinite;margin:0 auto 20px}
+.sos-cancel{background:transparent;border:1px solid var(--bdr);border-radius:9px;padding:10px 28px;color:var(--muted);font-family:var(--sans);font-weight:700;font-size:.85rem;cursor:pointer;margin-bottom:14px;width:100%}
+.sos-cancel:hover{border-color:var(--acc);color:var(--acc)}
+.sos-send-now{background:var(--red);border:none;border-radius:9px;padding:12px 28px;color:#fff;font-family:var(--sans);font-weight:700;font-size:.9rem;cursor:pointer;width:100%;margin-bottom:10px}
+.sos-contact-links{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.sos-link{display:block;padding:10px;border-radius:8px;font-family:var(--mono);font-size:.75rem;text-decoration:none;font-weight:700}
+.sos-link.whatsapp{background:rgba(37,211,102,.12);color:#25d366;border:1px solid rgba(37,211,102,.25)}
+.sos-link.sms{background:rgba(0,229,255,.08);color:var(--acc);border:1px solid rgba(0,229,255,.2)}
+.sos-link.call{background:rgba(0,230,118,.08);color:var(--ok);border:1px solid rgba(0,230,118,.2)}
+.sos-conf-badge{display:inline-block;padding:4px 12px;border-radius:20px;background:rgba(255,61,107,.15);color:var(--red);font-family:var(--mono);font-size:.72rem;margin-bottom:16px}
+
 @media(max-width:720px){.grid2,.slider-grid,.grid3,.sensor-grid{grid-template-columns:1fr}.tabs{gap:2px}.tab{padding:8px 14px;font-size:.75rem}}
 </style>
 </head>
@@ -187,6 +218,65 @@ td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
       </div>
     </div>
   </div>
+  <div class="card" style="margin-bottom:16px;border-color:rgba(255,61,107,.25)">
+    <div class="card-label" style="color:var(--red)">SOS Emergency Contact</div>
+    <div class="sos-setup">
+      <div class="sos-setup-title">Alert settings</div>
+      <div class="sos-input-row">
+        <label>Contact name</label>
+        <input id="sos-name" placeholder="e.g. Mom" value=""/>
+      </div>
+      <div class="sos-input-row">
+        <label>Phone number</label>
+        <input id="sos-phone" placeholder="+91XXXXXXXXXX" type="tel" value=""/>
+      </div>
+      <div class="sos-input-row">
+        <label>Min confidence</label>
+        <select id="sos-threshold">
+          <option value="70">70% — trigger often</option>
+          <option value="80" selected>80% — recommended</option>
+          <option value="90">90% — very sure only</option>
+          <option value="95">95% — maximum certainty</option>
+        </select>
+      </div>
+      <div class="sos-input-row">
+        <label>Countdown</label>
+        <select id="sos-countdown">
+          <option value="5">5 seconds</option>
+          <option value="10" selected>10 seconds</option>
+          <option value="15">15 seconds</option>
+          <option value="20">20 seconds</option>
+        </select>
+      </div>
+      <div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:6px">
+        When a fall is detected above the confidence threshold, a countdown starts. If not cancelled, SOS is sent automatically.
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span id="sos-enabled-badge" style="font-family:var(--mono);font-size:.68rem;color:var(--muted)">Enter phone number to enable SOS</span>
+    </div>
+  </div>
+
+  <!-- SOS OVERLAY -->
+  <div class="sos-overlay-wrap" id="sos-overlay">
+    <div class="sos-box">
+      <div class="sos-icon">🚨</div>
+      <div class="sos-title">FALL DETECTED</div>
+      <div class="sos-sub" id="sos-detail">Sending SOS in...</div>
+      <div class="sos-conf-badge" id="sos-conf-badge">confidence: —</div>
+      <div class="sos-ring"></div>
+      <div class="sos-countdown" id="sos-countdown-num">10</div>
+      <div class="sos-countdown-lbl">seconds until SOS is sent</div>
+      <button class="sos-send-now" onclick="sendSOSNow()">Send SOS Now</button>
+      <button class="sos-cancel" onclick="cancelSOS()">I am okay — Cancel</button>
+      <div class="sos-contact-links" id="sos-links" style="display:none">
+        <a class="sos-link whatsapp" id="sos-wa-link" target="_blank">WhatsApp SOS</a>
+        <a class="sos-link sms" id="sos-sms-link">SMS SOS</a>
+        <a class="sos-link call" id="sos-call-link">Call Contact</a>
+      </div>
+    </div>
+  </div>
+
   <div class="card" style="margin-bottom:16px">
     <div class="card-label">Backend URL</div>
     <div class="url-row">
@@ -407,6 +497,98 @@ function addLog(code,name,cat){
   document.getElementById('live-log').innerHTML=logItems.map(e=>`<div class="log-row"><span class="log-t">${e.t}</span><span style="color:${e.cat==='fall'?'var(--red)':e.cat==='stumble'?'var(--warn)':'var(--ok)'};font-weight:700">${e.code}</span><span>${e.name}</span></div>`).join('');
 }
 
+/* ── SOS system ── */
+let sosTimer=null, sosSecondsLeft=0, sosAudioCtx=null, sosBeepInterval=null;
+let consecutiveFalls=0;
+const SOS_FALL_CONFIRM=2; // needs 2 consecutive fall detections before SOS
+
+function getSosPhone(){return document.getElementById('sos-phone').value.trim().replace(/\s/g,'');}
+function getSosName(){return document.getElementById('sos-name').value.trim()||'Emergency Contact';}
+function getSosThreshold(){return parseInt(document.getElementById('sos-threshold').value);}
+function getSosCountdown(){return parseInt(document.getElementById('sos-countdown').value);}
+
+function updateSosBadge(){
+  const ph=getSosPhone();
+  const el=document.getElementById('sos-enabled-badge');
+  if(ph){el.textContent='SOS enabled for '+getSosName()+' ('+ph+')';el.style.color='var(--ok)';}
+  else{el.textContent='Enter phone number to enable SOS';el.style.color='var(--muted)';}
+}
+document.getElementById('sos-phone').addEventListener('input',updateSosBadge);
+document.getElementById('sos-name').addEventListener('input',updateSosBadge);
+
+function getSosMessage(label,conf){
+  return encodeURIComponent('🚨 FALL ALERT 🚨\nI may have fallen and need help!\nFall type: '+label+'\nConfidence: '+conf+'%\nTime: '+new Date().toLocaleTimeString()+'\nPlease call or come check on me immediately.');
+}
+
+function buildSosLinks(label,conf){
+  const ph=getSosPhone();
+  const msg=getSosMessage(label,conf);
+  document.getElementById('sos-wa-link').href='https://wa.me/'+ph.replace('+','')+'?text='+msg;
+  document.getElementById('sos-sms-link').href='sms:'+ph+'?body='+msg;
+  document.getElementById('sos-call-link').href='tel:'+ph;
+}
+
+function startBeep(){
+  try{
+    sosAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    sosBeepInterval=setInterval(()=>{
+      const osc=sosAudioCtx.createOscillator();
+      const gain=sosAudioCtx.createGain();
+      osc.connect(gain);gain.connect(sosAudioCtx.destination);
+      osc.frequency.value=880;osc.type='square';
+      gain.gain.setValueAtTime(0.3,sosAudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001,sosAudioCtx.currentTime+0.25);
+      osc.start();osc.stop(sosAudioCtx.currentTime+0.25);
+    },600);
+  }catch(e){}
+}
+
+function stopBeep(){
+  if(sosBeepInterval)clearInterval(sosBeepInterval);
+  if(sosAudioCtx)try{sosAudioCtx.close();}catch(e){}
+  sosAudioCtx=null;sosBeepInterval=null;
+}
+
+function vibrateSOS(){
+  if(navigator.vibrate)navigator.vibrate([500,200,500,200,500,200,1000,200,1000,200,1000]);
+}
+
+function triggerSOS(label,conf){
+  if(sosTimer)return; // already counting
+  const ph=getSosPhone();
+  if(!ph)return;
+  consecutiveFalls=0;
+  buildSosLinks(label,conf);
+  document.getElementById('sos-conf-badge').textContent='confidence: '+conf+'%  —  '+label;
+  document.getElementById('sos-detail').textContent='Sending SOS to '+getSosName()+' in...';
+  document.getElementById('sos-links').style.display='none';
+  document.getElementById('sos-overlay').classList.add('active');
+  sosSecondsLeft=getSosCountdown();
+  document.getElementById('sos-countdown-num').textContent=sosSecondsLeft;
+  startBeep();vibrateSOS();
+  sosTimer=setInterval(()=>{
+    sosSecondsLeft--;
+    document.getElementById('sos-countdown-num').textContent=sosSecondsLeft;
+    if(navigator.vibrate)navigator.vibrate(200);
+    if(sosSecondsLeft<=0){clearInterval(sosTimer);sosTimer=null;sendSOSNow();}
+  },1000);
+}
+
+function sendSOSNow(){
+  if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
+  stopBeep();
+  document.getElementById('sos-countdown-num').textContent='SOS';
+  document.getElementById('sos-countdown-lbl').textContent='opening contact options';
+  document.getElementById('sos-links').style.display='flex';
+  document.getElementById('sos-wa-link').click();
+}
+
+function cancelSOS(){
+  if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
+  stopBeep();consecutiveFalls=0;
+  document.getElementById('sos-overlay').classList.remove('active');
+}
+
 async function livePredictNow(){
   if(!running)return;
   const f=computeFeatures();updateLiveBars(f);
@@ -415,9 +597,17 @@ async function livePredictNow(){
     const d=await r.json();if(d.error)throw new Error(d.error);
     renderResult('live-result-box','live-prob-list',null,d);
     const cat=(LABEL_MAP[d.label]||{cat:'normal'}).cat;
-    if(cat==='fall')setLiveStatus('FALL DETECTED!','fall-alert');
-    else if(cat==='stumble')setLiveStatus('Stumble detected','stumble-alert');
-    else setLiveStatus('Monitoring…','listening');
+    if(cat==='fall'){
+      setLiveStatus('FALL DETECTED!','fall-alert');
+      consecutiveFalls++;
+      if(consecutiveFalls>=SOS_FALL_CONFIRM && d.confidence>=getSosThreshold() && !sosTimer){
+        triggerSOS(d.label, d.confidence);
+      }
+    } else {
+      if(cat!=='stumble') consecutiveFalls=0;
+      if(cat==='stumble')setLiveStatus('Stumble detected','stumble-alert');
+      else setLiveStatus('Monitoring…','listening');
+    }
     addLog(d.label,(LABEL_MAP[d.label]||{name:d.label}).name,cat);
   }catch(e){
     document.getElementById('live-result-box').innerHTML=`<span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">Backend error: ${e.message}</span>`;
