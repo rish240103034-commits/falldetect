@@ -221,37 +221,20 @@ td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
   <div class="card" style="margin-bottom:16px;border-color:rgba(255,61,107,.25)">
     <div class="card-label" style="color:var(--red)">SOS Emergency Contact</div>
     <div class="sos-setup">
-      <div class="sos-setup-title">Alert settings</div>
+      <div class="sos-setup-title">SOS via Twilio SMS</div>
       <div class="sos-input-row">
         <label>Contact name</label>
         <input id="sos-name" placeholder="e.g. Mom" value=""/>
       </div>
-      <div class="sos-input-row">
-        <label>Phone number</label>
-        <input id="sos-phone" placeholder="+91XXXXXXXXXX" type="tel" value=""/>
+      <div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:10px;line-height:1.9">
+        <b style="color:var(--acc)">One-time Twilio setup:</b><br/>
+        1. Go to <b style="color:var(--acc)">twilio.com/try-twilio</b> — free trial, no credit card<br/>
+        2. Verify your phone number (this is the number that receives SMS)<br/>
+        3. Copy your <b style="color:var(--acc)">Account SID</b>, <b style="color:var(--acc)">Auth Token</b>, and <b style="color:var(--acc)">Twilio number</b><br/>
+        4. Paste them into <b style="color:var(--acc)">Cell 3</b> of the Colab notebook<br/>
+        5. SMS is sent automatically when fall is detected
       </div>
-      <div class="sos-input-row">
-        <label>Min confidence</label>
-        <select id="sos-threshold">
-          <option value="70">70% — trigger often</option>
-          <option value="80" selected>80% — recommended</option>
-          <option value="90">90% — very sure only</option>
-          <option value="95">95% — maximum certainty</option>
-        </select>
-      </div>
-      <div class="sos-input-row">
-        <label>Countdown</label>
-        <select id="sos-countdown">
-          <option value="5">5 seconds</option>
-          <option value="10" selected>10 seconds</option>
-          <option value="15">15 seconds</option>
-          <option value="20">20 seconds</option>
-        </select>
-      </div>
-      <div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:6px">
-        When a fall is detected above the confidence threshold, a countdown starts. If not cancelled, SOS is sent automatically.
-      </div>
-    </div>
+    </div></div>
     <div style="display:flex;gap:8px;align-items:center">
       <span id="sos-enabled-badge" style="font-family:var(--mono);font-size:.68rem;color:var(--muted)">Enter phone number to enable SOS</span>
     </div>
@@ -280,7 +263,7 @@ td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
   <div class="card" style="margin-bottom:16px">
     <div class="card-label">Backend URL</div>
     <div class="url-row">
-      <input class="url-input" id="api-url" value="https://prominent-relative-coal-moment.trycloudflare.com/api/predict" placeholder="http://192.168.x.x:5000/api/predict"/>
+      <input class="url-input" id="api-url" value="https://protocol-stations-ranges-cart.trycloudflare.com/api/predict" placeholder="http://192.168.x.x:5000/api/predict"/>
       <button class="btn btn-ghost" onclick="testConn()">Test</button>
     </div>
     <div id="conn-msg" style="font-family:var(--mono);font-size:.68rem;margin-top:7px;color:var(--muted)"></div>
@@ -508,13 +491,34 @@ function getSosThreshold(){return parseInt(document.getElementById('sos-threshol
 function getSosCountdown(){return parseInt(document.getElementById('sos-countdown').value);}
 
 function updateSosBadge(){
-  const ph=getSosPhone();
-  const el=document.getElementById('sos-enabled-badge');
-  if(ph){el.textContent='SOS enabled for '+getSosName()+' ('+ph+')';el.style.color='var(--ok)';}
-  else{el.textContent='Enter phone number to enable SOS';el.style.color='var(--muted)';}
+  const name = getSosName();
+  const el   = document.getElementById('sos-enabled-badge');
+  if(name && name !== 'Emergency Contact'){
+    el.textContent = 'SOS enabled — SMS will be sent for ' + name;
+    el.style.color = 'var(--ok)';
+  } else {
+    el.textContent = 'Enter contact name to enable SOS';
+    el.style.color = 'var(--muted)';
+  }
 }
-document.getElementById('sos-phone').addEventListener('input',updateSosBadge);
-document.getElementById('sos-name').addEventListener('input',updateSosBadge);
+if(document.getElementById('sos-name')) document.getElementById('sos-name').addEventListener('input', updateSosBadge);
+let sosTimer=null, sosSecondsLeft=0, sosAudioCtx=null, sosBeepInterval=null;
+let consecutiveFalls=0;
+const SOS_FALL_CONFIRM=2; // needs 2 consecutive fall detections before SOS
+
+function getSosPhone(){return document.getElementById('sos-phone').value.trim().replace(/\s/g,'');}
+function getSosName(){return document.getElementById('sos-name').value.trim()||'Emergency Contact';}
+function getSosThreshold(){return parseInt(document.getElementById('sos-threshold').value);}
+function getSosCountdown(){return parseInt(document.getElementById('sos-countdown').value);}
+
+function updateSosBadge(){
+  const t = document.getElementById('sos-ntfy-topic') ? document.getElementById('sos-ntfy-topic').value.trim() : '';
+  const el = document.getElementById('sos-enabled-badge');
+  if(t){el.textContent='SOS alerts → ntfy topic: '+t;el.style.color='var(--ok)';}
+  else{el.textContent='Enter ntfy topic to enable SOS';el.style.color='var(--muted)';}
+}
+if(document.getElementById('sos-ntfy-topic')) document.getElementById('sos-ntfy-topic').addEventListener('input',updateSosBadge);
+if(document.getElementById('sos-name')) document.getElementById('sos-name').addEventListener('input',updateSosBadge);
 
 function getSosMessage(label,conf){
   return encodeURIComponent('🚨 FALL ALERT 🚨\nI may have fallen and need help!\nFall type: '+label+'\nConfidence: '+conf+'%\nTime: '+new Date().toLocaleTimeString()+'\nPlease call or come check on me immediately.');
@@ -553,10 +557,12 @@ function vibrateSOS(){
   if(navigator.vibrate)navigator.vibrate([500,200,500,200,500,200,1000,200,1000,200,1000]);
 }
 
+let sosCurrentLabel='', sosCurrentConf=0;
 function triggerSOS(label,conf){
-  if(sosTimer)return; // already counting
+  if(sosTimer)return;
   const ph=getSosPhone();
-  if(!ph)return;
+  // SMS sent via backend — no frontend key needed
+  sosCurrentLabel=label; sosCurrentConf=conf;
   consecutiveFalls=0;
   buildSosLinks(label,conf);
   document.getElementById('sos-conf-badge').textContent='confidence: '+conf+'%  —  '+label;
@@ -574,13 +580,33 @@ function triggerSOS(label,conf){
   },1000);
 }
 
-function sendSOSNow(){
+async function sendSOSNow(){
   if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
   stopBeep();
-  document.getElementById('sos-countdown-num').textContent='SOS';
-  document.getElementById('sos-countdown-lbl').textContent='opening contact options';
-  document.getElementById('sos-links').style.display='flex';
-  document.getElementById('sos-wa-link').click();
+  const lbl  = sosCurrentLabel || 'FALL';
+  const conf = sosCurrentConf  || 0;
+  document.getElementById('sos-countdown-num').textContent = 'SOS';
+  document.getElementById('sos-countdown-lbl').textContent = 'Sending SMS...';
+  document.getElementById('sos-links').style.display = 'flex';
+
+  try{
+    const base = getApiBase();
+    const r = await fetch(base + '/sos', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({label: lbl, confidence: conf})
+    });
+    const d = await r.json();
+    if(d.sent){
+      document.getElementById('sos-countdown-lbl').textContent = 'SMS sent to ' + getSosName() + '!';
+    } else if(d.reason === 'cooldown'){
+      document.getElementById('sos-countdown-lbl').textContent = 'Cooldown — SMS already sent recently';
+    } else {
+      document.getElementById('sos-countdown-lbl').textContent = 'SMS failed: ' + (d.reason||'unknown');
+    }
+  } catch(e){
+    document.getElementById('sos-countdown-lbl').textContent = 'Could not reach backend';
+  }
 }
 
 function cancelSOS(){
