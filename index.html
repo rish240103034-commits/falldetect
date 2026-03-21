@@ -3,154 +3,114 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FallGuard — Motion Intelligence System</title>
+<title>FallGuard</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#090c10;--surf:#0e1420;--surf2:#141c2b;--bdr:#1e2d45;--acc:#00e5ff;--red:#ff3d6b;--warn:#ffb800;--ok:#00e676;--txt:#e0eaf8;--muted:#4a6080;--mono:'Space Mono',monospace;--sans:'Syne',sans-serif}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--txt);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);min-height:100vh}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.025) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
-.wrap{position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:20px 16px}
-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;border-bottom:1px solid var(--bdr);margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:20px 16px}
+header{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;border-bottom:1px solid var(--bdr);margin-bottom:24px;flex-wrap:wrap;gap:10px}
 .logo{display:flex;align-items:center;gap:12px}
-.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--acc),#0066ff);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 20px rgba(0,229,255,.25)}
-.logo h1{font-size:1.4rem;font-weight:800;letter-spacing:-.5px}
-.logo span{font-size:.65rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:2px}
-.online-badge{display:flex;align-items:center;gap:7px;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);border-radius:20px;padding:6px 14px;font-family:var(--mono);font-size:.7rem;color:var(--ok)}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s ease-in-out infinite}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--acc),#0055ff);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.logo h1{font-size:1.3rem;font-weight:800;letter-spacing:-.5px}
+.logo span{font-size:.62rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:2px}
+.badge{display:flex;align-items:center;gap:7px;padding:5px 13px;border-radius:20px;font-family:var(--mono);font-size:.68rem}
+.badge-ok{background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--ok)}
+.pulse{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,230,118,.4)}50%{box-shadow:0 0 0 5px rgba(0,230,118,0)}}
-.tabs{display:flex;gap:4px;background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:4px;margin-bottom:28px;width:fit-content;flex-wrap:wrap}
-.tab{padding:9px 20px;border:none;background:transparent;color:var(--muted);font-family:var(--sans);font-size:.82rem;font-weight:600;border-radius:8px;cursor:pointer;transition:all .2s}
+.tabs{display:flex;gap:3px;background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:4px;margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:8px 18px;border:none;background:transparent;color:var(--muted);font-family:var(--sans);font-size:.8rem;font-weight:600;border-radius:8px;cursor:pointer;transition:all .2s}
 .tab.active{background:var(--acc);color:var(--bg)}
 .tab:hover:not(.active){color:var(--txt);background:var(--surf2)}
-.panel{display:none;animation:fadeIn .3s ease}.panel.active{display:block}
+.panel{display:none}.panel.active{display:block;animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.card{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:20px}
-.card-label{font-size:.65rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px}
-.card-label::before{content:'';width:3px;height:12px;background:var(--acc);border-radius:2px;display:inline-block}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border:none;border-radius:9px;font-family:var(--sans);font-size:.83rem;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-acc{background:var(--acc);color:var(--bg)}.btn-acc:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,229,255,.3)}.btn-acc:disabled{opacity:.5;cursor:default;transform:none}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:20px;margin-bottom:16px}
+.card-lbl{font-size:.62rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.card-lbl::before{content:'';width:3px;height:12px;background:var(--acc);border-radius:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border:none;border-radius:9px;font-family:var(--sans);font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-acc{background:var(--acc);color:var(--bg)}.btn-acc:hover{transform:translateY(-1px)}.btn-acc:disabled{opacity:.5;cursor:default;transform:none}
 .btn-ghost{background:var(--surf2);color:var(--txt);border:1px solid var(--bdr)}.btn-ghost:hover{border-color:var(--acc);color:var(--acc)}
-.btn-danger{background:rgba(255,61,107,.12);color:var(--red);border:1px solid rgba(255,61,107,.3)}
-.alert{padding:10px 14px;border-radius:8px;font-family:var(--mono);font-size:.72rem;margin-bottom:12px}
-.alert-err{background:rgba(255,61,107,.1);border:1px solid rgba(255,61,107,.3);color:var(--red)}
-.result-box{background:var(--bg);border:1px solid var(--bdr);border-radius:12px;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:140px;transition:border-color .4s,box-shadow .4s}
-.result-box.fall{border-color:var(--red);box-shadow:0 0 28px rgba(255,61,107,.1)}
-.result-box.stumble{border-color:var(--warn);box-shadow:0 0 28px rgba(255,184,0,.08)}
-.result-box.normal{border-color:var(--ok);box-shadow:0 0 28px rgba(0,230,118,.08)}
-.res-code{font-size:2.4rem;font-weight:800;letter-spacing:-1px;line-height:1}
+.btn-red{background:rgba(255,61,107,.15);color:var(--red);border:1px solid rgba(255,61,107,.35)}.btn-red:hover{background:var(--red);color:#fff}
+.result-box{background:var(--bg);border:1px solid var(--bdr);border-radius:10px;padding:18px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:120px;transition:all .4s}
+.result-box.fall{border-color:var(--red);box-shadow:0 0 24px rgba(255,61,107,.12)}
+.result-box.stumble{border-color:var(--warn);box-shadow:0 0 24px rgba(255,184,0,.1)}
+.result-box.normal{border-color:var(--ok);box-shadow:0 0 24px rgba(0,230,118,.1)}
+.res-code{font-size:2.2rem;font-weight:800;letter-spacing:-1px}
 .res-code.fall{color:var(--red)}.res-code.stumble{color:var(--warn)}.res-code.normal{color:var(--ok)}
-.res-name{font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:1.5px}
-.prob-list{display:flex;flex-direction:column;gap:9px}
+.prob-list{display:flex;flex-direction:column;gap:8px}
 .pb-item{display:flex;align-items:center;gap:8px}
-.pb-lbl{font-family:var(--mono);font-size:.62rem;color:var(--muted);width:34px;flex-shrink:0}
+.pb-lbl{font-family:var(--mono);font-size:.62rem;color:var(--muted);width:32px;flex-shrink:0}
 .pb-track{flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
-.pb-fill{height:100%;border-radius:3px;background:var(--acc);transition:width .6s cubic-bezier(.4,0,.2,1)}
-.pb-val{font-family:var(--mono);font-size:.6rem;color:var(--muted);width:36px;text-align:right;flex-shrink:0}
-.slider-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
-.field label{display:flex;justify-content:space-between;font-size:.65rem;font-family:var(--mono);color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px}
-.field label span{color:var(--acc)}
-.field input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--bdr);border-radius:2px;outline:none;cursor:pointer}
-.field input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px rgba(0,229,255,.4)}
-.stat-card{background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px}
-.stat-num{font-size:1.8rem;font-weight:800;letter-spacing:-1px;color:var(--acc)}
-.stat-lbl{font-family:var(--mono);font-size:.6rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:1px}
-.tbl-wrap{overflow-x:auto;margin-top:16px}
-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.75rem}
-th{background:var(--bg);color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:9px 13px;text-align:left;border-bottom:1px solid var(--bdr)}
-td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:700}
-.badge.fall{background:rgba(255,61,107,.12);color:var(--red);border:1px solid rgba(255,61,107,.25)}
-.badge.stumble{background:rgba(255,184,0,.1);color:var(--warn);border:1px solid rgba(255,184,0,.25)}
-.badge.normal{background:rgba(0,230,118,.08);color:var(--ok);border:1px solid rgba(0,230,118,.2)}
-.upload-zone{border:2px dashed var(--bdr);border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:all .2s}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--acc);background:rgba(0,229,255,.03)}
-.upload-text{color:var(--muted);font-family:var(--mono);font-size:.78rem}
-.upload-text strong{color:var(--acc)}
-.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.chip{padding:5px 14px;border-radius:20px;font-family:var(--mono);font-size:.7rem;display:flex;align-items:center;gap:5px}
-.chip .n{font-weight:700;font-size:.9rem}
-.chip.fall{background:rgba(255,61,107,.1);color:var(--red);border:1px solid rgba(255,61,107,.2)}
-.chip.stumble{background:rgba(255,184,0,.08);color:var(--warn);border:1px solid rgba(255,184,0,.2)}
-.chip.normal{background:rgba(0,230,118,.06);color:var(--ok);border:1px solid rgba(0,230,118,.18)}
-.spin{width:16px;height:16px;border:2px solid rgba(0,229,255,.2);border-top-color:var(--acc);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
-.dist-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr)}
-.dist-item:last-child{border:none}
-.dist-code{font-family:var(--mono);font-size:.72rem;color:var(--acc);width:38px}
-.dist-name{font-size:.82rem;flex:1}
-.dist-bar-wrap{width:90px;background:var(--bg);border-radius:3px;height:4px}
-.dist-bar{height:100%;border-radius:3px}
-.dist-count{font-family:var(--mono);font-size:.7rem;color:var(--muted);width:38px;text-align:right}
-
-/* Live sensor styles */
-.sensor-status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.72rem;padding:6px 14px;border-radius:20px;width:fit-content;transition:all .3s;margin-bottom:14px}
-.sensor-status.idle{background:rgba(74,96,128,.15);color:var(--muted);border:1px solid var(--bdr)}
-.sensor-status.listening{background:rgba(0,229,255,.08);color:var(--acc);border:1px solid rgba(0,229,255,.25)}
-.sensor-status.fall-alert{background:rgba(255,61,107,.12);color:var(--red);border:1px solid rgba(255,61,107,.3)}
-.sensor-status.stumble-alert{background:rgba(255,184,0,.1);color:var(--warn);border:1px solid rgba(255,184,0,.25)}
-.wave-canvas{width:100%;height:88px;display:block;background:var(--bg);border-radius:8px}
-.wave-legend{display:flex;gap:14px;margin-top:7px}
-.wl{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.6rem;color:var(--muted)}
-.wl-dot{width:10px;height:3px;border-radius:2px}
-.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-.bar-lbl{font-family:var(--mono);font-size:.62rem;color:var(--muted);width:88px;flex-shrink:0}
+.pb-fill{height:100%;border-radius:3px;background:var(--acc);transition:width .5s ease}
+.pb-val{font-family:var(--mono);font-size:.6rem;color:var(--muted);width:34px;text-align:right}
+.sg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sg-item{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:10px;text-align:center}
+.sg-axis{font-family:var(--mono);font-size:.55rem;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.sg-val{font-family:var(--mono);font-size:.95rem;font-weight:700}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bar-lbl{font-family:var(--mono);font-size:.6rem;color:var(--muted);width:84px;flex-shrink:0}
 .bar-track{flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
 .bar-fill{height:100%;border-radius:3px;transition:width .25s ease}
-.bar-val{font-family:var(--mono);font-size:.62rem;color:var(--txt);width:44px;text-align:right;flex-shrink:0}
-.sensor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.sg-item{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px}
-.sg-axis{font-family:var(--mono);font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.sg-val{font-family:var(--mono);font-size:1rem;font-weight:700}
-.perm-hint{background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.15);border-radius:10px;padding:14px 18px;font-size:.8rem;color:var(--muted);line-height:1.6;margin-bottom:14px}
-.perm-hint strong{color:var(--acc)}
-.url-row{display:flex;gap:8px;align-items:center}
-.url-input{flex:1;background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:9px 13px;color:var(--txt);font-family:var(--mono);font-size:.78rem;outline:none;transition:border-color .2s}
-.url-input:focus{border-color:var(--acc)}
-.log-row{font-family:var(--mono);font-size:.68rem;color:var(--muted);padding:5px 0;border-bottom:1px solid rgba(30,45,69,.4);display:flex;gap:10px;align-items:center}
-.log-row:last-child{border:none}
+.bar-val{font-family:var(--mono);font-size:.6rem;color:var(--txt);width:42px;text-align:right}
+.wave-box{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:10px;margin-bottom:12px}
+.log-row{font-family:var(--mono);font-size:.65rem;color:var(--muted);padding:4px 0;border-bottom:1px solid rgba(30,45,69,.4);display:flex;gap:8px}
 .log-t{color:var(--bdr);flex-shrink:0}
-
-
-/* SOS styles */
-.sos-setup{background:rgba(255,61,107,.06);border:1px solid rgba(255,61,107,.2);border-radius:10px;padding:14px 16px;margin-bottom:14px}
-.sos-setup-title{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--red);margin-bottom:10px}
-.sos-input-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
-.sos-input-row label{font-family:var(--mono);font-size:.65rem;color:var(--muted);width:110px;flex-shrink:0}
-.sos-input-row input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:7px 11px;color:var(--txt);font-family:var(--mono);font-size:.78rem;outline:none}
-.sos-input-row input:focus{border-color:var(--red)}
-.sos-input-row select{flex:1;background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:7px 11px;color:var(--txt);font-family:var(--mono);font-size:.78rem;outline:none}
-/* SOS overlay — uses normal flow inside a tall wrapper so it fills space */
-/* sos-overlay uses inline styles */
-.sos-box{background:#0e1420;border:2px solid var(--red);border-radius:20px;padding:36px 28px;max-width:340px;width:90%;text-align:center;animation:sosPulse 1s ease-in-out infinite alternate}
-@keyframes sosPulse{from{box-shadow:0 0 20px rgba(255,61,107,.3)}to{box-shadow:0 0 50px rgba(255,61,107,.7)}}
-.sos-icon{font-size:3rem;margin-bottom:10px;animation:shake .4s ease-in-out infinite alternate}
-@keyframes shake{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
-.sos-title{font-size:1.6rem;font-weight:800;color:var(--red);letter-spacing:-0.5px;margin-bottom:4px}
-.sos-sub{font-family:var(--mono);font-size:.75rem;color:var(--muted);margin-bottom:20px}
-.sos-countdown{font-size:3.5rem;font-weight:800;color:var(--red);font-family:var(--mono);line-height:1;margin-bottom:6px}
-.sos-countdown-lbl{font-family:var(--mono);font-size:.68rem;color:var(--muted);margin-bottom:22px}
-.sos-ring{width:90px;height:90px;border-radius:50%;border:4px solid rgba(255,61,107,.2);border-top-color:var(--red);animation:spin 1s linear infinite;margin:0 auto 20px}
-.sos-cancel{background:transparent;border:1px solid var(--bdr);border-radius:9px;padding:10px 28px;color:var(--muted);font-family:var(--sans);font-weight:700;font-size:.85rem;cursor:pointer;margin-bottom:14px;width:100%}
-.sos-cancel:hover{border-color:var(--acc);color:var(--acc)}
-.sos-send-now{background:var(--red);border:none;border-radius:9px;padding:12px 28px;color:#fff;font-family:var(--sans);font-weight:700;font-size:.9rem;cursor:pointer;width:100%;margin-bottom:10px}
-.sos-contact-links{display:flex;flex-direction:column;gap:8px;margin-top:4px}
-.sos-link{display:block;padding:10px;border-radius:8px;font-family:var(--mono);font-size:.75rem;text-decoration:none;font-weight:700}
-.sos-link.whatsapp{background:rgba(37,211,102,.12);color:#25d366;border:1px solid rgba(37,211,102,.25)}
-.sos-link.sms{background:rgba(0,229,255,.08);color:var(--acc);border:1px solid rgba(0,229,255,.2)}
-.sos-link.call{background:rgba(0,230,118,.08);color:var(--ok);border:1px solid rgba(0,230,118,.2)}
-.sos-conf-badge{display:inline-block;padding:4px 12px;border-radius:20px;background:rgba(255,61,107,.15);color:var(--red);font-family:var(--mono);font-size:.72rem;margin-bottom:16px}
-
-
-/* Voice check styles */
-.voice-ring{width:70px;height:70px;border-radius:50%;border:3px solid rgba(255,61,107,.3);border-top-color:var(--red);margin:0 auto 10px;display:none}
-.voice-ring.listening{display:block;animation:spin .8s linear infinite}
-.voice-ring.speaking{display:block;border-top-color:var(--acc);animation:spin 1.2s linear infinite}
-.voice-status{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-bottom:12px;min-height:18px;text-align:center}
-.voice-heard{font-family:var(--mono);font-size:.78rem;color:var(--acc);margin:6px 0;min-height:18px;text-align:center;font-style:italic}
-@media(max-width:720px){.grid2,.slider-grid,.grid3,.sensor-grid{grid-template-columns:1fr}.tabs{gap:2px}.tab{padding:8px 14px;font-size:.75rem}}
+.spin{width:16px;height:16px;border:2px solid rgba(0,229,255,.2);border-top-color:var(--acc);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.url-row{display:flex;gap:8px}
+.url-inp{flex:1;background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:8px 12px;color:var(--txt);font-family:var(--mono);font-size:.75rem;outline:none}
+.url-inp:focus{border-color:var(--acc)}
+select,input[type=number]{background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:7px 10px;color:var(--txt);font-family:var(--mono);font-size:.75rem;outline:none}
+select:focus,input[type=number]:focus{border-color:var(--acc)}
+.field-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.field-row label{font-family:var(--mono);font-size:.62rem;color:var(--muted);width:110px;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px}
+/* SOS overlay */
+#sos-overlay{display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.9);align-items:center;justify-content:center}
+.sos-box{background:#0e1420;border:2px solid var(--red);border-radius:20px;padding:28px;max-width:310px;width:90%;text-align:center;animation:sosglow 1s ease-in-out infinite alternate}
+@keyframes sosglow{from{box-shadow:0 0 20px rgba(255,61,107,.3)}to{box-shadow:0 0 50px rgba(255,61,107,.7)}}
+.sos-icon{font-size:2.8rem;margin-bottom:6px;animation:shake .4s ease-in-out infinite alternate}
+@keyframes shake{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+.sos-title{font-size:1.6rem;font-weight:800;color:var(--red);margin-bottom:4px}
+.sos-ring-wrap{position:relative;width:90px;height:90px;margin:12px auto}
+.sos-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:800;color:var(--red);font-family:var(--mono)}
+.sos-lbl{font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-bottom:12px}
+.voice-status{font-family:var(--mono);font-size:.68rem;color:var(--muted);margin-bottom:4px;min-height:16px}
+.voice-heard{font-family:var(--mono);font-size:.72rem;color:var(--acc);margin-bottom:12px;min-height:16px;font-style:italic}
+.gps-status{font-family:var(--mono);font-size:.6rem;color:var(--muted);margin-bottom:12px}
+.sos-btn-send{width:100%;padding:12px;background:var(--red);border:none;border-radius:10px;color:#fff;font-family:var(--sans);font-weight:700;font-size:.88rem;cursor:pointer;margin-bottom:8px}
+.sos-btn-cancel{width:100%;padding:10px;background:transparent;border:1px solid var(--bdr);border-radius:10px;color:var(--muted);font-family:var(--sans);font-weight:600;font-size:.82rem;cursor:pointer}
+.sos-btn-cancel:hover{border-color:var(--ok);color:var(--ok)}
+/* manual */
+.form-g{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.field label{display:block;font-size:.6rem;font-family:var(--mono);color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.field input{width:100%;background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:8px 10px;color:var(--txt);font-family:var(--mono);font-size:.8rem;outline:none}
+.field input:focus{border-color:var(--acc)}
+/* csv */
+.drop-zone{border:2px dashed var(--bdr);border-radius:10px;padding:36px;text-align:center;cursor:pointer;transition:all .2s}
+.drop-zone:hover{border-color:var(--acc);background:rgba(0,229,255,.03)}
+.tbl-wrap{overflow-x:auto;margin-top:14px}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.72rem}
+th{background:var(--bg);color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--bdr)}
+td{padding:8px 12px;border-bottom:1px solid rgba(30,45,69,.4)}
+.tbadge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.62rem;font-weight:700}
+.tbadge.fall{background:rgba(255,61,107,.12);color:var(--red);border:1px solid rgba(255,61,107,.25)}
+.tbadge.stumble{background:rgba(255,184,0,.1);color:var(--warn);border:1px solid rgba(255,184,0,.25)}
+.tbadge.normal{background:rgba(0,230,118,.08);color:var(--ok);border:1px solid rgba(0,230,118,.2)}
+/* stats */
+.dist-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr)}
+.dist-item:last-child{border:none}
+.dist-code{font-family:var(--mono);font-size:.7rem;color:var(--acc);width:36px}
+.dist-name{font-size:.8rem;flex:1}
+.dist-bar-wrap{width:80px;background:var(--bg);border-radius:3px;height:4px}
+.dist-bar{height:100%;border-radius:3px}
+.dist-cnt{font-family:var(--mono);font-size:.68rem;color:var(--muted);width:34px;text-align:right}
+/* debug */
+#dbg{background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:8px 14px;margin-bottom:14px;font-family:var(--mono);font-size:.62rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+@media(max-width:680px){.g2,.form-g{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}.sg-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
@@ -158,65 +118,97 @@ td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
 
 <header>
   <div class="logo">
-    <div class="logo-icon">🛡️</div>
-    <div>
-      <h1>FallGuard</h1>
-      <span>Motion Intelligence System</span>
-    </div>
+    <div class="logo-icon">&#x1F6E1;&#xFE0F;</div>
+    <div><h1>FallGuard</h1><span>Motion Intelligence</span></div>
   </div>
-  <div style="display:flex;gap:8px;align-items:center">
-    <div class="online-badge"><div class="dot"></div>Model Online</div>
-    <button onclick="triggerSOS('FOL',95)" style="padding:6px 14px;background:rgba(255,61,107,0.15);border:1px solid rgba(255,61,107,0.4);border-radius:20px;color:#ff3d6b;font-family:var(--mono);font-size:.65rem;cursor:pointer;font-weight:700">TEST SOS</button>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <div class="badge badge-ok"><div class="pulse"></div>Live</div>
+    <button class="btn btn-red" style="padding:5px 13px;font-size:.65rem" onclick="triggerSOS('FOL',95)">TEST SOS</button>
   </div>
 </header>
-<div id="debug-bar" style="background:#0e1420;border:1px solid #1e2d45;border-radius:8px;padding:8px 14px;margin-bottom:14px;font-family:var(--mono);font-size:.65rem;color:#4a6080;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
-  <span>Debug:</span>
-  <span id="dbg-falls" style="color:#00e5ff">Falls: 0</span>
-  <span id="dbg-conf" style="color:#ffb800">Conf: —</span>
-  <span id="dbg-cat" style="color:#4a6080">Cat: —</span>
-  <span id="dbg-thresh" style="color:#4a6080">Thresh: —</span>
-  <span id="dbg-sos" style="color:#4a6080">SOS: idle</span>
+
+<!-- Debug bar -->
+<div id="dbg">
+  <span style="color:var(--acc)">Debug</span>
+  <span>Falls: <b id="d-falls" style="color:var(--acc)">0</b>/2</span>
+  <span>Conf: <b id="d-conf" style="color:var(--warn)">—</b></span>
+  <span>Cat: <b id="d-cat">—</b></span>
+  <span>Thresh: <b id="d-thresh">80%</b></span>
+  <span>SOS: <b id="d-sos">idle</b></span>
+  <span>Backend: <b id="d-backend" style="color:var(--muted)">untested</b></span>
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="switchTab('live',this)">📱 Live Sensor</button>
+  <button class="tab active" onclick="switchTab('live',this)">&#x1F4F1; Live Sensor</button>
   <button class="tab" onclick="switchTab('manual',this)">Manual Input</button>
   <button class="tab" onclick="switchTab('csv',this)">CSV Upload</button>
-  <button class="tab" onclick="switchTab('stats',this)">Dataset Stats</button>
+  <button class="tab" onclick="switchTab('stats',this)">Stats</button>
 </div>
 
-<!-- LIVE SENSOR -->
+<!-- ═══ LIVE PANEL ═══ -->
 <div id="panel-live" class="panel active">
-  <div class="grid2" style="margin-bottom:18px">
-    <div class="card">
-      <div class="card-label">Device sensor stream</div>
-      <div class="perm-hint">Open on your <strong>phone</strong>. Tap <strong>Start Detection</strong> — the browser reads your accelerometer &amp; gyroscope and classifies your activity every ~2.5 seconds.</div>
-      <div id="live-status" class="sensor-status idle"><span id="live-dot" class="dot" style="background:var(--muted);animation:none"></span><span id="live-status-txt">Idle</span></div>
-      <div id="live-controls-off"><button class="btn btn-acc" onclick="startSensors()">▶ Start Detection</button></div>
-      <div id="live-controls-on" style="display:none">
-        <canvas class="wave-canvas" id="liveWave"></canvas>
-        <div class="wave-legend">
-          <div class="wl"><div class="wl-dot" style="background:#378ADD"></div>Acc X</div>
-          <div class="wl"><div class="wl-dot" style="background:#1D9E75"></div>Acc Y</div>
-          <div class="wl"><div class="wl-dot" style="background:#EF9F27"></div>Acc Z</div>
+  <div class="g2">
+    <!-- Left -->
+    <div>
+      <div class="card">
+        <div class="card-lbl">Sensor stream</div>
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px;line-height:1.6">Open on your phone. Tap Start — browser reads accelerometer &amp; gyroscope and classifies activity every ~2.5 s.</p>
+        <div id="live-status" style="font-family:var(--mono);font-size:.7rem;color:var(--muted);margin-bottom:12px">Status: Idle</div>
+        <div id="ctrl-off">
+          <button class="btn btn-acc" onclick="startSensors()">&#x25B6; Start Detection</button>
         </div>
-        <div style="margin-top:14px">
+        <div id="ctrl-on" style="display:none">
+          <div class="wave-box"><canvas id="liveWave" style="width:100%;height:80px;display:block"></canvas></div>
           <div class="bar-row"><span class="bar-lbl">acc_max</span><div class="bar-track"><div class="bar-fill" id="lb-acc" style="background:#378ADD;width:0%"></div></div><span class="bar-val" id="lv-acc">—</span></div>
           <div class="bar-row"><span class="bar-lbl">gyro_max</span><div class="bar-track"><div class="bar-fill" id="lb-gyro" style="background:#1D9E75;width:0%"></div></div><span class="bar-val" id="lv-gyro">—</span></div>
           <div class="bar-row"><span class="bar-lbl">lin_max</span><div class="bar-track"><div class="bar-fill" id="lb-lin" style="background:#EF9F27;width:0%"></div></div><span class="bar-val" id="lv-lin">—</span></div>
           <div class="bar-row"><span class="bar-lbl">acc_kurtosis</span><div class="bar-track"><div class="bar-fill" id="lb-kurt" style="background:#7F77DD;width:0%"></div></div><span class="bar-val" id="lv-kurt">—</span></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap">
-          <button class="btn btn-danger" onclick="stopSensors()">■ Stop</button>
-          <span id="live-sample-ct" style="font-family:var(--mono);font-size:.68rem;color:var(--muted)">0 samples</span>
-          <span id="live-win-badge" style="font-family:var(--mono);font-size:.65rem;color:var(--muted)">Filling window…</span>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn btn-ghost" onclick="stopSensors()">&#x25A0; Stop</button>
+            <span id="sample-ct" style="font-family:var(--mono);font-size:.65rem;color:var(--muted)">0 samples</span>
+            <span id="win-badge" style="font-family:var(--mono);font-size:.62rem;color:var(--muted)">filling…</span>
+          </div>
         </div>
       </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- SOS Setup -->
+      <div class="card" style="border-color:rgba(255,61,107,.25)">
+        <div class="card-lbl" style="color:var(--red)">SOS Settings</div>
+        <div class="field-row"><label>Contact name</label><input id="sos-name" style="flex:1" placeholder="e.g. Mom" value="Mom"/></div>
+        <div class="field-row"><label>Min confidence</label>
+          <select id="sos-threshold" style="flex:1">
+            <option value="60">60%</option><option value="70">70%</option>
+            <option value="80" selected>80% — recommended</option><option value="90">90%</option>
+          </select>
+        </div>
+        <div class="field-row"><label>Countdown</label>
+          <select id="sos-countdown" style="flex:1">
+            <option value="5">5 sec</option><option value="10" selected>10 sec</option>
+            <option value="15">15 sec</option><option value="20">20 sec</option>
+          </select>
+        </div>
+        <div style="font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:8px;line-height:1.7">
+          SMS sent via Twilio. Set credentials in Colab Cell 3.<br/>
+          Fall confirmed 2x above threshold triggers SOS countdown.
+        </div>
+      </div>
+
+      <!-- Backend URL -->
       <div class="card">
-        <div class="card-label">Raw sensor values</div>
-        <div class="sensor-grid">
+        <div class="card-lbl">Backend URL</div>
+        <div class="url-row">
+          <input class="url-inp" id="api-url" value="https://ids-till-phi-electric.trycloudflare.com/api/predict"/>
+          <button class="btn btn-ghost" onclick="testConn()" style="white-space:nowrap">Test</button>
+        </div>
+        <div id="conn-msg" style="font-family:var(--mono);font-size:.65rem;margin-top:6px;color:var(--muted)"></div>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div>
+      <div class="card">
+        <div class="card-lbl">Raw sensors</div>
+        <div class="sg-grid">
           <div class="sg-item"><div class="sg-axis">Acc X</div><div class="sg-val" id="sg-ax" style="color:#378ADD">—</div></div>
           <div class="sg-item"><div class="sg-axis">Acc Y</div><div class="sg-val" id="sg-ay" style="color:#1D9E75">—</div></div>
           <div class="sg-item"><div class="sg-axis">Acc Z</div><div class="sg-val" id="sg-az" style="color:#EF9F27">—</div></div>
@@ -226,257 +218,194 @@ td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
         </div>
       </div>
       <div class="card">
-        <div class="card-label">Live prediction</div>
-        <div class="result-box" id="live-result-box" style="min-height:110px"><span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">Start detection to predict…</span></div>
+        <div class="card-lbl">Live prediction</div>
+        <div class="result-box" id="live-result"><span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">Start detection to predict</span></div>
       </div>
       <div class="card">
-        <div class="card-label">Top probabilities</div>
-        <div class="prob-list" id="live-prob-list"><span style="font-family:var(--mono);font-size:.65rem;color:var(--muted)">No predictions yet</span></div>
+        <div class="card-lbl">Probabilities</div>
+        <div class="prob-list" id="live-probs"><span style="font-family:var(--mono);font-size:.65rem;color:var(--muted)">No predictions yet</span></div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Log</div>
+        <div id="live-log" style="max-height:130px;overflow-y:auto"><span style="font-family:var(--mono);font-size:.65rem;color:var(--muted)">Nothing yet</span></div>
       </div>
     </div>
-  </div>
-  <div class="card" style="margin-bottom:16px;border-color:rgba(255,61,107,.25)">
-    <div class="card-label" style="color:var(--red)">SOS Emergency Contact</div>
-    <div class="sos-setup">
-      <div class="sos-setup-title">SOS via Twilio SMS</div>
-      <div class="sos-input-row">
-        <label>Contact name</label>
-        <input id="sos-name" placeholder="e.g. Mom" value="Mom"/>
-      </div>
-      <div class="sos-input-row">
-        <label>Min confidence</label>
-        <select id="sos-threshold">
-          <option value="60">60% — trigger often</option>
-          <option value="70">70%</option>
-          <option value="80" selected>80% — recommended</option>
-          <option value="90">90% — very sure only</option>
-        </select>
-      </div>
-      <div class="sos-input-row">
-        <label>Countdown</label>
-        <select id="sos-countdown">
-          <option value="5">5 seconds</option>
-          <option value="10" selected>10 seconds</option>
-          <option value="15">15 seconds</option>
-          <option value="20">20 seconds</option>
-        </select>
-      </div>
-      <div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:8px;line-height:1.7">
-        SMS sent via Twilio backend when fall confirmed. Set credentials in Colab Cell 3.
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
-      <span id="sos-enabled-badge" style="font-family:var(--mono);font-size:.68rem;color:var(--ok)">SOS active — SMS will be sent on fall</span>
-    </div>
-  </div>
-
-  <!-- SOS OVERLAY -->
-  <div id="sos-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;flex-direction:column">
-    <div style="background:#0e1420;border:2px solid #ff3d6b;border-radius:20px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 0 60px rgba(255,61,107,0.4)">
-      <div style="font-size:3rem;margin-bottom:8px">🚨</div>
-      <div style="font-size:1.8rem;font-weight:800;color:#ff3d6b;margin-bottom:6px">FALL DETECTED</div>
-      <div id="sos-conf-badge" style="display:inline-block;padding:4px 14px;border-radius:20px;background:rgba(255,61,107,0.15);color:#ff3d6b;font-family:var(--mono);font-size:.72rem;margin-bottom:18px">confidence: —</div>
-
-      <!-- Countdown ring -->
-      <div style="position:relative;width:100px;height:100px;margin:0 auto 16px">
-        <svg width="100" height="100" style="position:absolute;top:0;left:0;transform:rotate(-90deg)">
-          <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,61,107,0.15)" stroke-width="8"/>
-          <circle id="sos-ring-circle" cx="50" cy="50" r="44" fill="none" stroke="#ff3d6b" stroke-width="8"
-            stroke-dasharray="276.5" stroke-dashoffset="0" stroke-linecap="round"
-            style="transition:stroke-dashoffset 1s linear"/>
-        </svg>
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-          <span id="sos-countdown-num" style="font-size:2.4rem;font-weight:800;color:#ff3d6b;font-family:var(--mono)">10</span>
-        </div>
-      </div>
-
-      <div id="sos-countdown-lbl" style="font-family:var(--mono);font-size:.72rem;color:#4a6080;margin-bottom:14px">seconds until SOS is sent</div>
-
-      <!-- Voice status -->
-      <div id="voice-ring-wrap" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:6px;min-height:24px">
-        <div id="voice-ring" style="display:none;width:14px;height:14px;border-radius:50%;border:2px solid #00e5ff;border-top-color:transparent;animation:spin .7s linear infinite"></div>
-        <div id="voice-status" style="font-family:var(--mono);font-size:.7rem;color:#4a6080"></div>
-      </div>
-      <div id="voice-heard" style="font-family:var(--mono);font-size:.75rem;color:#00e5ff;margin-bottom:16px;min-height:18px;font-style:italic"></div>
-
-      <!-- GPS status -->
-      <div id="sos-gps-status" style="font-family:var(--mono);font-size:.65rem;color:#4a6080;margin-bottom:16px"></div>
-
-      <button onclick="sendSOSNow()" style="width:100%;padding:13px;background:#ff3d6b;border:none;border-radius:10px;color:#fff;font-family:var(--sans);font-size:.9rem;font-weight:700;cursor:pointer;margin-bottom:10px">
-        Send SOS Now
-      </button>
-      <button onclick="cancelSOS()" style="width:100%;padding:11px;background:transparent;border:1px solid #1e2d45;border-radius:10px;color:#4a6080;font-family:var(--sans);font-size:.85rem;font-weight:600;cursor:pointer">
-        I am OK — Cancel
-      </button>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-label">Backend URL</div>
-    <div class="url-row">
-      <input class="url-input" id="api-url" value="https://ids-till-phi-electric.trycloudflare.com/api/predict" placeholder="http://192.168.x.x:5000/api/predict"/>
-      <button class="btn btn-ghost" onclick="testConn()">Test</button>
-    </div>
-    <div id="conn-msg" style="font-family:var(--mono);font-size:.68rem;margin-top:7px;color:var(--muted)"></div>
-  </div>
-  <div class="card">
-    <div class="card-label">Detection log</div>
-    <div id="live-log" style="max-height:140px;overflow-y:auto"><div style="font-family:var(--mono);font-size:.68rem;color:var(--muted)">Nothing logged yet</div></div>
   </div>
 </div>
 
-<!-- MANUAL -->
+<!-- ═══ MANUAL PANEL ═══ -->
 <div id="panel-manual" class="panel">
-  <div class="grid2">
+  <div class="g2">
     <div class="card">
-      <div class="card-label">Sensor Features</div>
+      <div class="card-lbl">Sensor features</div>
       <div id="manual-alert"></div>
-      <div class="slider-grid">
-        <div class="field"><label>acc_max <span id="sv-acc_max">26.0</span></label><input type="range" id="sr-acc_max" min="5" max="45" step="0.1" value="26" oninput="syncField('acc_max',this.value)"></div>
-        <div class="field"><label>gyro_max <span id="sv-gyro_max">7.3</span></label><input type="range" id="sr-gyro_max" min="1" max="20" step="0.1" value="7.3" oninput="syncField('gyro_max',this.value)"></div>
-        <div class="field"><label>lin_max <span id="sv-lin_max">11.1</span></label><input type="range" id="sr-lin_max" min="2" max="25" step="0.1" value="11.1" oninput="syncField('lin_max',this.value)"></div>
-        <div class="field"><label>acc_kurtosis <span id="sv-acc_kurtosis">20.4</span></label><input type="range" id="sr-acc_kurtosis" min="1" max="60" step="0.1" value="20.4" oninput="syncField('acc_kurtosis',this.value)"></div>
-        <div class="field"><label>gyro_kurtosis <span id="sv-gyro_kurtosis">2.8</span></label><input type="range" id="sr-gyro_kurtosis" min="1" max="40" step="0.1" value="2.8" oninput="syncField('gyro_kurtosis',this.value)"></div>
-        <div class="field"><label>acc_skewness <span id="sv-acc_skewness">3.9</span></label><input type="range" id="sr-acc_skewness" min="-5" max="10" step="0.1" value="3.9" oninput="syncField('acc_skewness',this.value)"></div>
-        <div class="field"><label>gyro_skewness <span id="sv-gyro_skewness">1.6</span></label><input type="range" id="sr-gyro_skewness" min="-5" max="8" step="0.1" value="1.6" oninput="syncField('gyro_skewness',this.value)"></div>
-        <div class="field"><label>post_gyro_max <span id="sv-post_gyro_max">7.1</span></label><input type="range" id="sr-post_gyro_max" min="1" max="18" step="0.1" value="7.1" oninput="syncField('post_gyro_max',this.value)"></div>
-        <div class="field" style="grid-column:span 3"><label>post_lin_max <span id="sv-post_lin_max">10.8</span></label><input type="range" id="sr-post_lin_max" min="1" max="22" step="0.1" value="10.8" oninput="syncField('post_lin_max',this.value)"></div>
+      <div class="form-g">
+        <div class="field"><label>acc_max</label><input type="number" id="f-acc_max" placeholder="26.04" step="0.001"/></div>
+        <div class="field"><label>gyro_max</label><input type="number" id="f-gyro_max" placeholder="7.31" step="0.001"/></div>
+        <div class="field"><label>lin_max</label><input type="number" id="f-lin_max" placeholder="11.13" step="0.001"/></div>
+        <div class="field"><label>acc_kurtosis</label><input type="number" id="f-acc_kurtosis" placeholder="20.38" step="0.001"/></div>
+        <div class="field"><label>gyro_kurtosis</label><input type="number" id="f-gyro_kurtosis" placeholder="2.78" step="0.001"/></div>
+        <div class="field"><label>acc_skewness</label><input type="number" id="f-acc_skewness" placeholder="3.89" step="0.001"/></div>
+        <div class="field"><label>gyro_skewness</label><input type="number" id="f-gyro_skewness" placeholder="1.59" step="0.001"/></div>
+        <div class="field"><label>post_gyro_max</label><input type="number" id="f-post_gyro_max" placeholder="7.09" step="0.001"/></div>
+        <div class="field"><label>post_lin_max</label><input type="number" id="f-post_lin_max" placeholder="10.79" step="0.001"/></div>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-acc" id="manualPredBtn" onclick="manualPredict()"><span id="manual-spin"></span>Predict</button>
-        <button class="btn btn-ghost" onclick="loadSample()">Load Sample</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-acc" id="pred-btn" onclick="manualPredict()"><span id="pred-spin"></span>Predict</button>
+        <button class="btn btn-ghost" onclick="loadSample()">Sample</button>
         <button class="btn btn-ghost" onclick="clearManual()">Clear</button>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:16px">
-      <div class="card">
-        <div class="card-label">Prediction</div>
-        <div class="result-box" id="manual-result-box"><span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">Enter values and click Predict</span></div>
-      </div>
-      <div class="card" id="manual-prob-card" style="display:none">
-        <div class="card-label">Top Probabilities</div>
-        <div class="prob-list" id="manual-prob-list"></div>
-      </div>
+    <div>
+      <div class="card"><div class="card-lbl">Result</div><div class="result-box" id="manual-result"><span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">Enter values and predict</span></div></div>
+      <div class="card" id="manual-probs-card" style="display:none"><div class="card-lbl">Probabilities</div><div class="prob-list" id="manual-probs"></div></div>
     </div>
   </div>
 </div>
 
-<!-- CSV -->
+<!-- ═══ CSV PANEL ═══ -->
 <div id="panel-csv" class="panel">
   <div class="card">
-    <div class="card-label">Batch Prediction — CSV Upload</div>
+    <div class="card-lbl">Batch prediction</div>
     <div id="csv-alert"></div>
-    <div class="upload-zone" id="drop-zone" onclick="document.getElementById('csv-file').click()">
-      <div style="font-size:2rem;margin-bottom:10px">📂</div>
-      <div class="upload-text"><strong>Click to upload</strong> or drag &amp; drop a CSV</div>
-      <div class="upload-text" style="margin-top:5px">Must contain the 9 sensor feature columns</div>
+    <div class="drop-zone" onclick="document.getElementById('csv-file').click()">
+      <div style="font-size:2rem;margin-bottom:8px">&#x1F4C2;</div>
+      <div style="font-family:var(--mono);font-size:.75rem;color:var(--muted)"><b style="color:var(--acc)">Click to upload</b> or drag &amp; drop CSV</div>
     </div>
     <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="uploadCSV(this)"/>
     <div id="csv-results"></div>
   </div>
 </div>
 
-<!-- STATS -->
+<!-- ═══ STATS PANEL ═══ -->
 <div id="panel-stats" class="panel">
-  <div id="stats-content"><div style="text-align:center;padding:60px;font-family:var(--mono);font-size:.75rem;color:var(--muted)">Loading…</div></div>
+  <div id="stats-content" style="text-align:center;padding:48px;font-family:var(--mono);font-size:.75rem;color:var(--muted)">Loading...</div>
 </div>
 
+<!-- ═══ SOS OVERLAY ═══ -->
+<div id="sos-overlay">
+  <div class="sos-box">
+    <div class="sos-icon">&#x1F6A8;</div>
+    <div class="sos-title">FALL DETECTED</div>
+    <div id="sos-badge" style="display:inline-block;padding:3px 12px;border-radius:20px;background:rgba(255,61,107,.15);color:var(--red);font-family:var(--mono);font-size:.68rem;margin-bottom:14px">conf: —</div>
+    <div class="sos-ring-wrap">
+      <svg width="90" height="90" style="position:absolute;top:0;left:0;transform:rotate(-90deg)">
+        <circle cx="45" cy="45" r="40" fill="none" stroke="rgba(255,61,107,.15)" stroke-width="7"/>
+        <circle id="sos-ring" cx="45" cy="45" r="40" fill="none" stroke="#ff3d6b" stroke-width="7"
+          stroke-dasharray="251.3" stroke-dashoffset="0" stroke-linecap="round" style="transition:stroke-dashoffset 1s linear"/>
+      </svg>
+      <div class="sos-num" id="sos-num">10</div>
+    </div>
+    <div class="sos-lbl" id="sos-lbl">seconds until SOS is sent</div>
+    <div class="voice-status" id="v-status"></div>
+    <div class="voice-heard" id="v-heard"></div>
+    <div class="gps-status" id="gps-status"></div>
+    <button class="sos-btn-send" onclick="sendSOSNow()">Send SOS Now</button>
+    <button class="sos-btn-cancel" onclick="cancelSOS()">I am OK — Cancel</button>
+  </div>
 </div>
 
 <script>
-const FEATURES=['acc_max','gyro_max','lin_max','acc_kurtosis','gyro_kurtosis','acc_skewness','gyro_skewness','post_gyro_max','post_lin_max'];
-const LABEL_MAP={FOL:{name:'Forward Fall',cat:'fall'},FKL:{name:'Fall Kneel',cat:'fall'},SDL:{name:'Sideways Fall',cat:'fall'},BSC:{name:'Back Fall',cat:'fall'},STU:{name:'Stumble',cat:'stumble'},WAL:{name:'Walking',cat:'normal'},JOG:{name:'Jogging',cat:'normal'},STD:{name:'Standing',cat:'normal'},STN:{name:'Standing Still',cat:'normal'},JUM:{name:'Jumping',cat:'normal'},CSI:{name:'Chair Sit-In',cat:'normal'},CSO:{name:'Chair Sit-Out',cat:'normal'},SCH:{name:'Sit Chair',cat:'normal'}};
-const CAT_COLOR={fall:'var(--red)',stumble:'var(--warn)',normal:'var(--ok)'};
-const CAT_LABEL={fall:'FALL DETECTED',stumble:'STUMBLE',normal:'NORMAL'};
+const LABEL_MAP={FOL:{name:"Forward Fall",cat:"fall"},FKL:{name:"Fall Kneel",cat:"fall"},SDL:{name:"Sideways Fall",cat:"fall"},BSC:{name:"Back Fall",cat:"fall"},STU:{name:"Stumble",cat:"stumble"},WAL:{name:"Walking",cat:"normal"},JOG:{name:"Jogging",cat:"normal"},STD:{name:"Standing",cat:"normal"},STN:{name:"Standing Still",cat:"normal"},JUM:{name:"Jumping",cat:"normal"},CSI:{name:"Chair Sit-In",cat:"normal"},CSO:{name:"Chair Sit-Out",cat:"normal"},SCH:{name:"Sit Chair",cat:"normal"}};
+const FEATURES=["acc_max","gyro_max","lin_max","acc_kurtosis","gyro_kurtosis","acc_skewness","gyro_skewness","post_gyro_max","post_lin_max"];
 
-function switchTab(name,el){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('panel-'+name).classList.add('active');
-  if(name==='stats')loadStats();
-}
+function $$(id){return document.getElementById(id);}
+function getBase(){return $$("api-url").value.trim().replace(/\/predict$/,"");}
+function switchTab(n,btn){document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));btn.classList.add("active");$$("panel-"+n).classList.add("active");if(n==="stats")loadStats();}
 
-function getApiBase(){return document.getElementById('api-url').value.trim().replace(/\/predict$/,'');}
-
-function renderResult(boxId,probId,probCardId,json){
-  const meta=LABEL_MAP[json.label]||{name:json.label,cat:'normal'};
+/* ── renderResult ── */
+function renderResult(boxId,probId,json){
+  const meta=LABEL_MAP[json.label]||{name:json.label,cat:"normal"};
   const cat=meta.cat;
-  const box=document.getElementById(boxId);
-  box.className='result-box '+cat;
-  box.innerHTML=`<div class="res-code ${cat}">${json.label}</div><div class="res-name">${meta.name}</div><div style="font-size:.75rem;color:${CAT_COLOR[cat]};font-family:var(--mono);font-weight:700">${CAT_LABEL[cat]}</div><div style="font-family:var(--mono);font-size:.75rem;color:var(--muted)">${json.confidence}% confidence</div>`;
-  if(json.top5&&document.getElementById(probId)){
-    if(probCardId)document.getElementById(probCardId).style.display='block';
-    document.getElementById(probId).innerHTML=json.top5.map(t=>`<div class="pb-item"><span class="pb-lbl">${t.label}</span><div class="pb-track"><div class="pb-fill" style="width:${t.prob}%"></div></div><span class="pb-val">${t.prob.toFixed(1)}%</span></div>`).join('');
+  const box=$$(boxId);
+  box.className="result-box "+cat;
+  box.innerHTML=`<div class="res-code ${cat}">${json.label}</div><div style="font-family:var(--mono);font-size:.68rem;color:var(--muted)">${meta.name}</div><div style="font-family:var(--mono);font-size:.68rem;color:${cat==="fall"?"var(--red)":cat==="stumble"?"var(--warn)":"var(--ok)"};font-weight:700">${cat.toUpperCase()}</div><div style="font-family:var(--mono);font-size:.72rem">${json.confidence}% confidence</div>`;
+  if(json.top5&&probId){
+    $$(probId).innerHTML=json.top5.map(t=>`<div class="pb-item"><span class="pb-lbl">${t.label}</span><div class="pb-track"><div class="pb-fill" style="width:${t.prob}%"></div></div><span class="pb-val">${t.prob.toFixed(1)}%</span></div>`).join("");
   }
-  return cat;
 }
 
-/* Manual */
-function syncField(f,v){document.getElementById('sv-'+f).textContent=parseFloat(v).toFixed(1);}
-function getManualData(){const d={};FEATURES.forEach(f=>d[f]=parseFloat(document.getElementById('sr-'+f).value));return d;}
-function loadSample(){const s={acc_max:26.04,gyro_max:7.31,lin_max:11.13,acc_kurtosis:20.38,gyro_kurtosis:2.78,acc_skewness:3.89,gyro_skewness:1.59,post_gyro_max:7.09,post_lin_max:10.79};FEATURES.forEach(f=>{document.getElementById('sr-'+f).value=s[f];syncField(f,s[f]);});}
-function clearManual(){document.getElementById('manual-result-box').className='result-box';document.getElementById('manual-result-box').innerHTML='<span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">Enter values and click Predict</span>';document.getElementById('manual-prob-card').style.display='none';}
-async function manualPredict(){
-  document.getElementById('manual-alert').innerHTML='';
-  const btn=document.getElementById('manualPredBtn');btn.disabled=true;
-  document.getElementById('manual-spin').innerHTML='<span class="spin"></span> ';
-  try{const r=await fetch(getApiBase()+'/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(getManualData())});const d=await r.json();if(d.error)throw new Error(d.error);renderResult('manual-result-box','manual-prob-list','manual-prob-card',d);}
-  catch(e){document.getElementById('manual-alert').innerHTML=`<div class="alert alert-err">${e.message}</div>`;}
-  finally{btn.disabled=false;document.getElementById('manual-spin').innerHTML='';}
-}
-
-/* CSV */
-const dz=document.getElementById('drop-zone');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
-dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)uploadCSV({files:[f]})});
-async function uploadCSV(input){
-  const file=input.files[0];if(!file)return;
-  document.getElementById('csv-alert').innerHTML='';
-  document.getElementById('csv-results').innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
-  const fd=new FormData();fd.append('file',file);
-  try{const r=await fetch(getApiBase()+'/predict-csv',{method:'POST',body:fd});const d=await r.json();
-    if(d.error){document.getElementById('csv-alert').innerHTML=`<div class="alert alert-err">${d.error}</div>`;document.getElementById('csv-results').innerHTML='';return;}
-    const s=d.summary;
-    const chips=['fall','stumble','normal'].map(c=>`<div class="chip ${c}"><span class="n">${s[c]||0}</span>${c}</div>`).join('');
-    const rows=d.results.slice(0,100).map(r=>`<tr><td>${r.row}</td><td style="color:var(--acc);font-family:var(--mono)">${r.label}</td><td>${r.name}</td><td><span class="badge ${r.category}">${r.category.toUpperCase()}</span></td></tr>`).join('');
-    document.getElementById('csv-results').innerHTML=`<div style="margin-top:16px"><div style="font-family:var(--mono);font-size:.68rem;color:var(--muted);margin-bottom:8px">${d.total} predictions${d.results.length>100?' — first 100 shown':''}</div><div class="chips">${chips}</div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Label</th><th>Activity</th><th>Category</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
-  }catch(e){document.getElementById('csv-alert').innerHTML=`<div class="alert alert-err">${e.message}</div>`;document.getElementById('csv-results').innerHTML='';}
-}
-
-/* Stats */
-async function loadStats(){
-  try{const r=await fetch(getApiBase()+'/stats');const d=await r.json();
-    if(d.error){document.getElementById('stats-content').innerHTML=`<div class="alert alert-err">${d.error}</div>`;return;}
-    const dist=d.label_distribution;const maxC=Math.max(...Object.values(dist).map(x=>x.count));
-    const cc={fall:'var(--red)',stumble:'var(--warn)',normal:'var(--ok)',unknown:'var(--muted)'};
-    const rows=Object.entries(dist).sort((a,b)=>b[1].count-a[1].count).map(([code,dd])=>`<div class="dist-item"><span class="dist-code">${code}</span><span class="dist-name">${dd.name}</span><div class="dist-bar-wrap"><div class="dist-bar" style="width:${Math.round(dd.count/maxC*100)}%;background:${cc[dd.category]||'var(--muted)'}"></div></div><span class="dist-count">${dd.count}</span></div>`).join('');
-    const fC=Object.values(dist).filter(x=>x.category==='fall').reduce((s,x)=>s+x.count,0);
-    const nC=Object.values(dist).filter(x=>x.category==='normal').reduce((s,x)=>s+x.count,0);
-    document.getElementById('stats-content').innerHTML=`<div class="grid3" style="margin-bottom:18px"><div class="stat-card"><div class="stat-num">${d.total_samples.toLocaleString()}</div><div class="stat-lbl">Total Samples</div></div><div class="stat-card"><div class="stat-num" style="color:var(--red)">${d.fall_percentage}%</div><div class="stat-lbl">Fall Events</div></div><div class="stat-card"><div class="stat-num" style="color:var(--ok)">${Object.keys(dist).length}</div><div class="stat-lbl">Activity Classes</div></div></div><div class="grid2"><div class="card"><div class="card-label">Label Distribution</div>${rows}</div><div class="card"><div class="card-label">Feature Columns</div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px">${d.features.map(f=>`<div style="font-family:var(--mono);font-size:.75rem;padding:7px 11px;background:var(--bg);border-radius:6px;border:1px solid var(--bdr);color:var(--acc)">${f}</div>`).join('')}</div><div class="card-label">Category Totals</div><div class="dist-item"><span style="font-family:var(--mono);font-size:.78rem;color:var(--red);flex:1">Fall events</span><span style="font-family:var(--mono);font-size:.78rem">${fC}</span></div><div class="dist-item"><span style="font-family:var(--mono);font-size:.78rem;color:var(--ok);flex:1">Normal activity</span><span style="font-family:var(--mono);font-size:.78rem">${nC}</span></div></div></div>`;
-  }catch(e){document.getElementById('stats-content').innerHTML=`<div class="alert alert-err">${e.message}</div>`;}
-}
-
-/* Connection test */
+/* ── Backend test ── */
 async function testConn(){
-  const el=document.getElementById('conn-msg');el.textContent='Testing…';el.style.color='var(--muted)';
-  try{const r=await fetch(getApiBase()+'/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acc_max:26,gyro_max:7,lin_max:11,acc_kurtosis:20,gyro_kurtosis:3,acc_skewness:4,gyro_skewness:1.6,post_gyro_max:7,post_lin_max:11})});
-    const d=await r.json();el.style.color='var(--ok)';el.textContent=`Connected — got: ${d.label} (${d.confidence}%)`;
-  }catch(e){el.style.color='var(--red)';el.textContent='Failed: '+e.message;}
+  const el=$$("conn-msg");el.textContent="Testing…";el.style.color="var(--muted)";
+  $$("d-backend").textContent="testing...";$$("d-backend").style.color="var(--warn)";
+  try{
+    const r=await fetch(getBase()+"/predict",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({acc_max:26,gyro_max:7,lin_max:11,acc_kurtosis:20,gyro_kurtosis:3,acc_skewness:4,gyro_skewness:1.6,post_gyro_max:7,post_lin_max:11})});
+    const d=await r.json();
+    el.style.color="var(--ok)";el.textContent="Connected — got: "+d.label+" ("+d.confidence+"%)";
+    $$("d-backend").textContent="OK";$$("d-backend").style.color="var(--ok)";
+  }catch(e){
+    el.style.color="var(--red)";el.textContent="Failed: "+e.message;
+    $$("d-backend").textContent="FAIL";$$("d-backend").style.color="var(--red)";
+  }
 }
 
-/* Live sensor */
-const WINDOW_SIZE=50,PREDICT_EVERY=25;
-let running=false,motionHandler=null;
-let accBuf={x:[],y:[],z:[]},gyroBuf={x:[],y:[],z:[]},waveBuf={x:[],y:[],z:[]};
-let sampleCount=0,predTimer=0,logItems=[];
+/* ── Manual ── */
+function loadSample(){const s={acc_max:26.04,gyro_max:7.31,lin_max:11.13,acc_kurtosis:20.38,gyro_kurtosis:2.78,acc_skewness:3.89,gyro_skewness:1.59,post_gyro_max:7.09,post_lin_max:10.79};FEATURES.forEach(f=>{const el=$$("f-"+f);if(el)el.value=s[f];});}
+function clearManual(){FEATURES.forEach(f=>{const el=$$("f-"+f);if(el)el.value="";});$$("manual-result").className="result-box";$$("manual-result").innerHTML='<span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">Enter values and predict</span>';$$("manual-probs-card").style.display="none";}
+async function manualPredict(){
+  $$("manual-alert").innerHTML="";
+  const data={};
+  for(const f of FEATURES){const v=$$("f-"+f).value;if(v===""){$$("manual-alert").innerHTML='<div style="color:var(--red);font-family:var(--mono);font-size:.7rem;margin-bottom:10px">All fields required</div>';return;}data[f]=parseFloat(v);}
+  const btn=$$("pred-btn");btn.disabled=true;$$("pred-spin").innerHTML='<span class="spin"></span> ';
+  try{
+    const r=await fetch(getBase()+"/predict",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    renderResult("manual-result","manual-probs",d);$$("manual-probs-card").style.display="block";
+  }catch(e){$$("manual-alert").innerHTML='<div style="color:var(--red);font-family:var(--mono);font-size:.7rem;margin-bottom:10px">'+e.message+'</div>';}
+  finally{btn.disabled=false;$$("pred-spin").innerHTML="";}
+}
+
+/* ── CSV ── */
+const dz=document.querySelector(".drop-zone");
+dz.addEventListener("dragover",e=>{e.preventDefault();dz.style.borderColor="var(--acc)"});
+dz.addEventListener("dragleave",()=>dz.style.borderColor="");
+dz.addEventListener("drop",e=>{e.preventDefault();dz.style.borderColor="";const f=e.dataTransfer.files[0];if(f)uploadCSV({files:[f]});});
+async function uploadCSV(inp){
+  const file=inp.files[0];if(!file)return;
+  $$("csv-alert").innerHTML="";$$("csv-results").innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
+  const fd=new FormData();fd.append("file",file);
+  try{
+    const r=await fetch(getBase()+"/predict-csv",{method:"POST",body:fd});const d=await r.json();
+    if(d.error){$$("csv-alert").innerHTML='<div style="color:var(--red);font-family:var(--mono);font-size:.7rem">'+d.error+'</div>';$$("csv-results").innerHTML="";return;}
+    const s=d.summary;
+    const chips=["fall","stumble","normal"].map(c=>`<span style="padding:4px 12px;border-radius:20px;font-family:var(--mono);font-size:.68rem;margin-right:8px;background:rgba(${c==="fall"?"255,61,107":c==="stumble"?"255,184,0":"0,230,118"},.1);color:var(--${c==="fall"?"red":c==="stumble"?"warn":"ok"})">${s[c]||0} ${c}</span>`).join("");
+    const rows=d.results.slice(0,150).map(r=>`<tr><td>${r.row}</td><td style="color:var(--acc);font-family:var(--mono)">${r.label}</td><td>${r.name}</td><td><span class="tbadge ${r.category}">${r.category.toUpperCase()}</span></td></tr>`).join("");
+    $$("csv-results").innerHTML=`<div style="margin-top:14px"><div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-bottom:8px">${d.total} rows${d.results.length>150?" — first 150 shown":""}</div><div style="margin-bottom:10px">${chips}</div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Label</th><th>Activity</th><th>Category</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }catch(e){$$("csv-alert").innerHTML='<div style="color:var(--red);font-family:var(--mono);font-size:.7rem">'+e.message+'</div>';$$("csv-results").innerHTML="";}
+}
+
+/* ── Stats ── */
+async function loadStats(){
+  try{
+    const r=await fetch(getBase()+"/stats");const d=await r.json();
+    if(!d.label_distribution){$$("stats-content").innerHTML='<div style="color:var(--muted);font-family:var(--mono);font-size:.75rem">Stats not available in Colab mode</div>';return;}
+    const dist=d.label_distribution;const maxC=Math.max(...Object.values(dist).map(x=>x.count));
+    const cc={fall:"var(--red)",stumble:"var(--warn)",normal:"var(--ok)",unknown:"var(--muted)"};
+    const rows=Object.entries(dist).sort((a,b)=>b[1].count-a[1].count).map(([code,dd])=>`<div class="dist-item"><span class="dist-code">${code}</span><span class="dist-name">${dd.name}</span><div class="dist-bar-wrap"><div class="dist-bar" style="width:${Math.round(dd.count/maxC*100)}%;background:${cc[dd.category]||"var(--muted)"}"></div></div><span class="dist-cnt">${dd.count}</span></div>`).join("");
+    $$("stats-content").innerHTML=`<div class="g3" style="margin-bottom:18px"><div class="card"><div style="font-size:1.8rem;font-weight:800;color:var(--acc)">${d.total_samples.toLocaleString()}</div><div style="font-family:var(--mono);font-size:.6rem;color:var(--muted)">Total samples</div></div><div class="card"><div style="font-size:1.8rem;font-weight:800;color:var(--red)">${d.fall_percentage}%</div><div style="font-family:var(--mono);font-size:.6rem;color:var(--muted)">Fall rate</div></div><div class="card"><div style="font-size:1.8rem;font-weight:800;color:var(--ok)">${Object.keys(dist).length}</div><div style="font-family:var(--mono);font-size:.6rem;color:var(--muted)">Classes</div></div></div><div class="card"><div class="card-lbl">Distribution</div>${rows}</div>`;
+  }catch(e){$$("stats-content").innerHTML='<div style="color:var(--muted);font-family:var(--mono);font-size:.75rem">Cannot connect to backend</div>';}
+}
+
+/* ══════════════════════════════════════════
+   LIVE SENSOR
+══════════════════════════════════════════ */
+const WIN=50, PRED_EVERY=25;
+let running=false, motionH=null;
+let accBuf={x:[],y:[],z:[]}, gyroBuf={x:[],y:[],z:[]}, waveBuf={x:[],y:[],z:[]};
+let sampleCount=0, predTimer=0, logItems=[];
+let consecutiveFalls=0;
+const SOS_FALL_CONFIRM=2;
+
+function getSosName(){const el=$$("sos-name");return el?el.value.trim()||"Emergency Contact":"Emergency Contact";}
+function getSosThreshold(){const el=$$("sos-threshold");return el?parseInt(el.value)||80:80;}
+function getSosCountdown(){const el=$$("sos-countdown");return el?parseInt(el.value)||10:10;}
 
 function mag(x,y,z){return Math.sqrt(x*x+y*y+z*z);}
 function mean(a){return a.length?a.reduce((s,v)=>s+v,0)/a.length:0;}
-function variance(a){const m=mean(a);return a.length?a.reduce((s,v)=>s+(v-m)**2,0)/a.length:0;}
-function kurtosis(a){const m=mean(a),v=variance(a);if(!v||a.length<4)return 0;return a.reduce((s,x)=>s+(x-m)**4,0)/(a.length*v**2)-3;}
-function skewness(a){const m=mean(a),v=variance(a);if(!v||a.length<3)return 0;return a.reduce((s,x)=>s+(x-m)**3,0)/(a.length*Math.pow(v,1.5));}
+function vari(a){const m=mean(a);return a.length?a.reduce((s,v)=>s+(v-m)**2,0)/a.length:0;}
+function kurt(a){const m=mean(a),v=vari(a);if(!v||a.length<4)return 0;return a.reduce((s,x)=>s+(x-m)**4,0)/(a.length*v**2)-3;}
+function skew(a){const m=mean(a),v=vari(a);if(!v||a.length<3)return 0;return a.reduce((s,x)=>s+(x-m)**3,0)/(a.length*Math.pow(v,1.5));}
 
 function computeFeatures(){
   const ax=accBuf.x,ay=accBuf.y,az=accBuf.z,gx=gyroBuf.x,gy=gyroBuf.y,gz=gyroBuf.z;
@@ -484,468 +413,87 @@ function computeFeatures(){
   const gM=gx.map((v,i)=>mag(v,gy[i],gz[i]));
   const lM=aM.map(v=>Math.abs(v-9.81));
   const h=Math.floor(aM.length/2);
-  return{acc_max:Math.max(...aM),gyro_max:Math.max(...gM),lin_max:Math.max(...lM),acc_kurtosis:kurtosis(aM),gyro_kurtosis:kurtosis(gM),acc_skewness:skewness(aM),gyro_skewness:skewness(gM),post_gyro_max:Math.max(...gM.slice(h)),post_lin_max:Math.max(...lM.slice(h))};
+  return{acc_max:Math.max(...aM),gyro_max:Math.max(...gM),lin_max:Math.max(...lM),acc_kurtosis:kurt(aM),gyro_kurtosis:kurt(gM),acc_skewness:skew(aM),gyro_skewness:skew(gM),post_gyro_max:Math.max(...gM.slice(h)),post_lin_max:Math.max(...lM.slice(h))};
 }
 
-function setLiveStatus(txt,cls){
-  const el=document.getElementById('live-status');el.className='sensor-status '+cls;
-  document.getElementById('live-status-txt').textContent=txt;
-  const dot=document.getElementById('live-dot');
-  dot.style.background=cls==='listening'?'var(--acc)':cls==='fall-alert'?'var(--red)':cls==='stumble-alert'?'var(--warn)':'var(--muted)';
-  dot.style.animation=cls==='idle'?'none':'pulse 1.4s ease-in-out infinite';
-}
-
-function clamp01(v,max){return Math.max(0,Math.min(100,v/max*100));}
-
-function updateLiveBars(f){
-  document.getElementById('lb-acc').style.width=clamp01(f.acc_max,45)+'%';
-  document.getElementById('lb-gyro').style.width=clamp01(f.gyro_max,20)+'%';
-  document.getElementById('lb-lin').style.width=clamp01(f.lin_max,25)+'%';
-  document.getElementById('lb-kurt').style.width=clamp01(Math.abs(f.acc_kurtosis),60)+'%';
-  document.getElementById('lv-acc').textContent=f.acc_max.toFixed(2);
-  document.getElementById('lv-gyro').textContent=f.gyro_max.toFixed(2);
-  document.getElementById('lv-lin').textContent=f.lin_max.toFixed(2);
-  document.getElementById('lv-kurt').textContent=Math.abs(f.acc_kurtosis).toFixed(2);
+function updateBars(f){
+  const cl=(v,mx)=>Math.max(0,Math.min(100,v/mx*100));
+  $$("lb-acc").style.width=cl(f.acc_max,45)+"%";$$("lv-acc").textContent=f.acc_max.toFixed(2);
+  $$("lb-gyro").style.width=cl(f.gyro_max,20)+"%";$$("lv-gyro").textContent=f.gyro_max.toFixed(2);
+  $$("lb-lin").style.width=cl(f.lin_max,25)+"%";$$("lv-lin").textContent=f.lin_max.toFixed(2);
+  $$("lb-kurt").style.width=cl(Math.abs(f.acc_kurtosis),60)+"%";$$("lv-kurt").textContent=f.acc_kurtosis.toFixed(2);
 }
 
 function drawWave(){
-  const canvas=document.getElementById('liveWave');if(!canvas)return;
-  const W=canvas.offsetWidth||600,H=88,dpr=window.devicePixelRatio||1;
-  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';
-  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
-  ctx.fillStyle='#090c10';ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='rgba(30,45,69,.4)';ctx.lineWidth=.5;
-  [H/4,H/2,H*3/4].forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();});
-  [{k:'x',c:'#378ADD'},{k:'y',c:'#1D9E75'},{k:'z',c:'#EF9F27'}].forEach(({k,c})=>{
+  const canvas=$$("liveWave");if(!canvas)return;
+  const W=canvas.offsetWidth||400,H=80,dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.height=H+"px";
+  const ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);
+  ctx.fillStyle="#090c10";ctx.fillRect(0,0,W,H);
+  [{k:"x",c:"#378ADD"},{k:"y",c:"#1D9E75"},{k:"z",c:"#EF9F27"}].forEach(({k,c})=>{
     const arr=waveBuf[k];if(arr.length<2)return;
-    ctx.beginPath();ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.globalAlpha=.9;
-    arr.forEach((v,i)=>{const x=i/(arr.length-1)*W,y=H/2-(v/20)*H/2;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-    ctx.stroke();ctx.globalAlpha=1;
+    ctx.beginPath();ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.lineJoin="round";
+    arr.forEach((v,i)=>{const x=i/(arr.length-1)*W,y=H/2-(v/25)*(H/2);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.stroke();
   });
 }
 
-function addLog(code,name,cat){
+function addLog(label,name,cat){
   const now=new Date();
-  const t=[now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>n.toString().padStart(2,'0')).join(':');
-  logItems.unshift({t,code,name,cat});if(logItems.length>30)logItems.pop();
-  document.getElementById('live-log').innerHTML=logItems.map(e=>`<div class="log-row"><span class="log-t">${e.t}</span><span style="color:${e.cat==='fall'?'var(--red)':e.cat==='stumble'?'var(--warn)':'var(--ok)'};font-weight:700">${e.code}</span><span>${e.name}</span></div>`).join('');
+  const t=[now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>n.toString().padStart(2,"0")).join(":");
+  logItems.unshift({t,label,name,cat});if(logItems.length>25)logItems.pop();
+  $$("live-log").innerHTML=logItems.map(e=>`<div class="log-row"><span class="log-t">${e.t}</span><span style="color:${e.cat==="fall"?"var(--red)":e.cat==="stumble"?"var(--warn)":"var(--ok)"};font-weight:700">${e.label}</span> ${e.name}</div>`).join("");
 }
-
-/* ── SOS + Voice system ── */
-const SOS_FALL_CONFIRM = 2;
-let sosTimer = null, sosSecondsLeft = 0;
-let sosAudioCtx = null, sosBeepInterval = null;
-let sosCurrentLabel = '', sosCurrentConf = 0;
-let recognition = null, voiceAsked = false;
-let sosGpsCoords = null;
-
-function getSosName(){ const el=document.getElementById('sos-name'); return el?el.value.trim()||'Emergency Contact':'Emergency Contact'; }
-function getSosThreshold(){ const el=document.getElementById('sos-threshold'); return el?parseInt(el.value):80; }
-function getSosCountdown(){ const el=document.getElementById('sos-countdown'); return el?parseInt(el.value):10; }
-
-/* ── GPS ── */
-function getGPS(){
-  return new Promise(resolve=>{
-    if(!navigator.geolocation){ resolve(null); return; }
-    document.getElementById('sos-gps-status').textContent = 'Getting GPS location...';
-    navigator.geolocation.getCurrentPosition(
-      pos=>{ sosGpsCoords={lat:pos.coords.latitude,lon:pos.coords.longitude,acc:Math.round(pos.coords.accuracy)}; resolve(sosGpsCoords); document.getElementById('sos-gps-status').textContent='Location: '+sosGpsCoords.lat.toFixed(5)+', '+sosGpsCoords.lon.toFixed(5); },
-      ()=>{ resolve(null); document.getElementById('sos-gps-status').textContent='GPS unavailable'; },
-      {timeout:5000,enableHighAccuracy:true}
-    );
-  });
-}
-
-/* ── Beep alarm ── */
-function startBeep(){
-  try{
-    sosAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    sosBeepInterval=setInterval(()=>{
-      const o=sosAudioCtx.createOscillator(),g=sosAudioCtx.createGain();
-      o.connect(g);g.connect(sosAudioCtx.destination);
-      o.frequency.value=880;o.type='square';
-      g.gain.setValueAtTime(0.3,sosAudioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001,sosAudioCtx.currentTime+0.25);
-      o.start();o.stop(sosAudioCtx.currentTime+0.25);
-    },700);
-  }catch(e){}
-}
-function stopBeep(){
-  if(sosBeepInterval)clearInterval(sosBeepInterval);
-  if(sosAudioCtx)try{sosAudioCtx.close();}catch(e){}
-  sosAudioCtx=null; sosBeepInterval=null;
-}
-
-/* ── Ring progress ── */
-function updateRing(secondsLeft, total){
-  const circle=document.getElementById('sos-ring-circle');
-  if(!circle)return;
-  const circumference=276.5;
-  const offset=circumference*(1-(secondsLeft/total));
-  circle.style.strokeDashoffset=offset;
-}
-
-/* ── Speak ── */
-function speak(text, onEnd){
-  try{
-    window.speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang='en-IN'; u.rate=0.88; u.pitch=1; u.volume=1;
-    if(onEnd) u.onend=onEnd;
-    window.speechSynthesis.speak(u);
-  }catch(e){ if(onEnd)onEnd(); }
-}
-
-/* ── Listen ── */
-function startListening(onResult){
-  try{
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){ onResult(''); return; }
-    if(recognition){ try{recognition.stop();}catch(e){} }
-    recognition=new SR();
-    recognition.lang='en-IN';
-    recognition.interimResults=false;
-    recognition.maxAlternatives=3;
-    recognition.continuous=false;
-    document.getElementById('voice-ring').style.display='block';
-    document.getElementById('voice-status').textContent='Listening... say "I am OK" or "Help"';
-    recognition.onresult=function(e){
-      const heard=Array.from(e.results[0]).map(r=>r.transcript).join(' ').toLowerCase();
-      document.getElementById('voice-heard').textContent='"'+heard+'"';
-      document.getElementById('voice-ring').style.display='none';
-      document.getElementById('voice-status').textContent='Heard you';
-      recognition=null;
-      onResult(heard);
-    };
-    recognition.onerror=function(){
-      document.getElementById('voice-ring').style.display='none';
-      document.getElementById('voice-status').textContent='Could not hear — use buttons';
-      recognition=null; onResult('');
-    };
-    recognition.onend=function(){ document.getElementById('voice-ring').style.display='none'; };
-    recognition.start();
-  }catch(e){
-    document.getElementById('voice-status').textContent='Mic not available — use buttons';
-    onResult('');
-  }
-}
-function stopListening(){
-  if(recognition)try{recognition.stop();}catch(e){}
-  recognition=null;
-  document.getElementById('voice-ring').style.display='none';
-}
-
-/* ── Main trigger ── */
-async function triggerSOS(label, conf){
-  if(sosTimer)return;
-  sosCurrentLabel=label; sosCurrentConf=conf; voiceAsked=false; sosGpsCoords=null;
-
-  // Show overlay
-  const overlay=document.getElementById('sos-overlay');
-  overlay.style.display='flex';
-  document.getElementById('sos-conf-badge').textContent='confidence: '+conf+'%  —  '+label;
-  document.getElementById('sos-countdown-lbl').textContent='seconds until SOS is sent';
-  document.getElementById('voice-heard').textContent='';
-  document.getElementById('voice-status').textContent='';
-  document.getElementById('voice-ring').style.display='none';
-  document.getElementById('sos-gps-status').textContent='';
-
-  // Get GPS immediately in background
-  getGPS();
-
-  // Countdown setup
-  const total=getSosCountdown();
-  sosSecondsLeft=total;
-  document.getElementById('sos-countdown-num').textContent=sosSecondsLeft;
-  updateRing(sosSecondsLeft,total);
-
-  // Beep + vibrate
-  startBeep();
-  if(navigator.vibrate)navigator.vibrate([400,150,400,150,400,150,800]);
-
-  // Speak "Are you OK?" then listen
-  speak('Fall detected! Are you okay? Say I am okay to cancel, or I will send help in '+total+' seconds.',
-    function(){
-      if(!sosTimer&&sosSecondsLeft>0)return;
-      voiceAsked=true;
-      setTimeout(function(){
-        if(document.getElementById('sos-overlay').style.display==='none')return;
-        startListening(function(heard){
-          if(!sosTimer&&sosSecondsLeft<=0)return;
-          processVoice(heard);
-        });
-      },300);
-    }
-  );
-
-  // Start countdown
-  sosTimer=setInterval(function(){
-    sosSecondsLeft--;
-    document.getElementById('sos-countdown-num').textContent=sosSecondsLeft;
-    updateRing(sosSecondsLeft,total);
-    if(navigator.vibrate)navigator.vibrate(120);
-    if(sosSecondsLeft<=0){
-      clearInterval(sosTimer); sosTimer=null;
-      sendSOSNow();
-    }
-  },1000);
-}
-
-function processVoice(heard){
-  if(!heard){ document.getElementById('voice-status').textContent='No response — timer continues'; return; }
-  const okWords  =['ok','okay','fine','i am ok','i am okay','im ok','no','cancel','safe','haan','theek','normal'];
-  const sosWords =['help','yes','send','sos','emergency','hurt','pain','fallen','madad','nahi','call'];
-  const isOk  = okWords.some(w=>heard.includes(w));
-  const isSos = sosWords.some(w=>heard.includes(w));
-  if(isOk){
-    speak('Okay! Stay safe.'); cancelSOS();
-  }else if(isSos){
-    speak('Sending help now!'); sendSOSNow();
-  }else{
-    document.getElementById('voice-status').textContent='Not understood — say OK or tap button';
-    speak('Say I am okay to cancel.');
-  }
-}
-
-async function sendSOSNow(){
-  if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
-  stopBeep(); stopListening();
-  document.getElementById('sos-countdown-num').textContent='SOS';
-  document.getElementById('sos-countdown-lbl').textContent='Sending SMS with location...';
-  document.getElementById('voice-ring').style.display='none';
-  speak('Sending emergency alert now. Help is on the way!');
-
-  // Build GPS string
-  let gpsText='Location not available';
-  let gpsLink='';
-  if(sosGpsCoords){
-    gpsText='Lat: '+sosGpsCoords.lat.toFixed(6)+', Lon: '+sosGpsCoords.lon.toFixed(6)+' (accuracy: '+sosGpsCoords.acc+'m)';
-    gpsLink='https://maps.google.com/?q='+sosGpsCoords.lat+','+sosGpsCoords.lon;
-  }else{
-    // try one more time
-    await getGPS();
-    if(sosGpsCoords){
-      gpsText='Lat: '+sosGpsCoords.lat.toFixed(6)+', Lon: '+sosGpsCoords.lon.toFixed(6);
-      gpsLink='https://maps.google.com/?q='+sosGpsCoords.lat+','+sosGpsCoords.lon;
-    }
-  }
-
-  try{
-    const base=getApiBase();
-    const r=await fetch(base+'/sos',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        label:sosCurrentLabel,
-        confidence:sosCurrentConf,
-        gps_text:gpsText,
-        gps_link:gpsLink
-      })
-    });
-    const d=await r.json();
-    if(d.sent){
-      document.getElementById('sos-countdown-lbl').textContent='SMS sent to '+getSosName()+'!';
-      document.getElementById('sos-gps-status').textContent='Location included in message';
-    }else if(d.reason==='cooldown'){
-      document.getElementById('sos-countdown-lbl').textContent='SMS already sent recently';
-    }else{
-      document.getElementById('sos-countdown-lbl').textContent='SMS failed: '+(d.reason||'check Twilio');
-    }
-  }catch(e){
-    document.getElementById('sos-countdown-lbl').textContent='Backend offline — call manually';
-  }
-}
-
-function cancelSOS(){
-  if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
-  stopBeep(); stopListening();
-  window.speechSynthesis.cancel();
-  consecutiveFalls=0;
-  document.getElementById('sos-overlay').style.display='none';
-  document.getElementById('voice-ring').style.display='none';
-  document.getElementById('voice-status').textContent='';
-  document.getElementById('voice-heard').textContent='';
-}
-
-
-
-
-function clamp01(v,max){return Math.max(0,Math.min(100,v/max*100));}
-
-function updateLiveBars(f){
-  document.getElementById('lb-acc').style.width=clamp01(f.acc_max,45)+'%';
-  document.getElementById('lb-gyro').style.width=clamp01(f.gyro_max,20)+'%';
-  document.getElementById('lb-lin').style.width=clamp01(f.lin_max,25)+'%';
-  document.getElementById('lb-kurt').style.width=clamp01(Math.abs(f.acc_kurtosis),60)+'%';
-  document.getElementById('lv-acc').textContent=f.acc_max.toFixed(2);
-  document.getElementById('lv-gyro').textContent=f.gyro_max.toFixed(2);
-  document.getElementById('lv-lin').textContent=f.lin_max.toFixed(2);
-  document.getElementById('lv-kurt').textContent=Math.abs(f.acc_kurtosis).toFixed(2);
-}
-
-function drawWave(){
-  const canvas=document.getElementById('liveWave');if(!canvas)return;
-  const W=canvas.offsetWidth||600,H=88,dpr=window.devicePixelRatio||1;
-  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';
-  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
-  ctx.fillStyle='#090c10';ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='rgba(30,45,69,.4)';ctx.lineWidth=.5;
-  [H/4,H/2,H*3/4].forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();});
-  [{k:'x',c:'#378ADD'},{k:'y',c:'#1D9E75'},{k:'z',c:'#EF9F27'}].forEach(({k,c})=>{
-    const arr=waveBuf[k];if(arr.length<2)return;
-    ctx.beginPath();ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.globalAlpha=.9;
-    arr.forEach((v,i)=>{const x=i/(arr.length-1)*W,y=H/2-(v/20)*H/2;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-    ctx.stroke();ctx.globalAlpha=1;
-  });
-}
-
-function addLog(code,name,cat){
-  const now=new Date();
-  const t=[now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>n.toString().padStart(2,'0')).join(':');
-  logItems.unshift({t,code,name,cat});if(logItems.length>30)logItems.pop();
-  document.getElementById('live-log').innerHTML=logItems.map(e=>`<div class="log-row"><span class="log-t">${e.t}</span><span style="color:${e.cat==='fall'?'var(--red)':e.cat==='stumble'?'var(--warn)':'var(--ok)'};font-weight:700">${e.code}</span><span>${e.name}</span></div>`).join('');
-}
-
-/* ── SOS + Voice system ── */
-const SOS_FALL_CONFIRM=2;
-let sosTimer=null, sosSecondsLeft=0;
-let sosAudioCtx=null, sosBeepInterval=null;
-
-function getSosName(){return document.getElementById('sos-name').value.trim()||'Emergency Contact';}
-function getSosThreshold(){const el=document.getElementById('sos-threshold');return el?parseInt(el.value):80;}
-function getSosCountdown(){const el=document.getElementById('sos-countdown');return el?parseInt(el.value):10;}
-
-function updateSosBadge(){
-  const name=getSosName();
-  const el=document.getElementById('sos-enabled-badge');
-  if(name&&name!=='Emergency Contact'){el.textContent='SOS enabled for '+name;el.style.color='var(--ok)';}
-  else{el.textContent='Enter contact name to enable SOS';el.style.color='var(--muted)';}
-}
-if(document.getElementById('sos-name')) document.getElementById('sos-name').addEventListener('input',updateSosBadge);
-
-/* ── Beep alarm ── */
-function startBeep(){
-  try{
-    sosAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    sosBeepInterval=setInterval(()=>{
-      const o=sosAudioCtx.createOscillator(),g=sosAudioCtx.createGain();
-      o.connect(g);g.connect(sosAudioCtx.destination);
-      o.frequency.value=880;o.type='square';
-      g.gain.setValueAtTime(0.3,sosAudioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001,sosAudioCtx.currentTime+0.25);
-      o.start();o.stop(sosAudioCtx.currentTime+0.25);
-    },700);
-  }catch(e){}
-}
-function stopBeep(){
-  if(sosBeepInterval)clearInterval(sosBeepInterval);
-  if(sosAudioCtx)try{sosAudioCtx.close();}catch(e){}
-  sosAudioCtx=null;sosBeepInterval=null;
-}
-
-/* ── Text to speech ── */
-
-
-/* ── Speech recognition ── */
-
-
-function stopListening(){
-  if(recognition)try{recognition.stop();}catch(e){}
-  recognition=null;
-  document.getElementById('voice-ring').className='voice-ring';
-}
-
-/* ── SOS trigger ── */
-
-
-async function sendVoiceToBackend(heard){
-  if(!heard||heard==='unsupported'||heard===''){
-    document.getElementById('voice-status').textContent='No voice detected — use buttons below';
-    return;
-  }
-  try{
-    const base=getApiBase();
-    const r=await fetch(base+'/voice',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({response:heard,label:sosCurrentLabel,confidence:sosCurrentConf})
-    });
-    const d=await r.json();
-    if(d.action==='cancel'){
-      speak('Okay, SOS cancelled. Stay safe!');
-      setTimeout(cancelSOS,1500);
-    }else if(d.action==='sos'){
-      speak('Help has been alerted. Stay calm, help is on the way!');
-      finishSOS(d.sent,null);
-    }else{
-      document.getElementById('voice-status').textContent='Not understood — say OK or tap Cancel';
-      speak('I did not understand. Say I am okay to cancel, or tap Send SOS now.');
-    }
-  }catch(e){
-    document.getElementById('voice-status').textContent='Backend offline — use buttons below';
-  }
-}
-
-
-
-function finishSOS(sent,reason){
-  if(sent){
-    document.getElementById('sos-countdown-lbl').textContent='SMS sent to '+getSosName()+'!';
-    document.getElementById('voice-status').textContent='Emergency contact notified via SMS';
-  }else if(reason==='cooldown'){
-    document.getElementById('sos-countdown-lbl').textContent='SMS already sent recently';
-  }else{
-    document.getElementById('sos-countdown-lbl').textContent='SMS failed: '+(reason||'check Twilio credentials');
-  }
-}
-
-
 
 async function livePredictNow(){
   if(!running)return;
-  const f=computeFeatures();updateLiveBars(f);
+  const f=computeFeatures();updateBars(f);
   try{
-    const r=await fetch(getApiBase()+'/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(f)});
+    const r=await fetch(getBase()+"/predict",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(f)});
     const d=await r.json();if(d.error)throw new Error(d.error);
-    renderResult('live-result-box','live-prob-list',null,d);
-    const cat=(LABEL_MAP[d.label]||{cat:'normal'}).cat;
+
+    // Update result box
+    renderResult("live-result","live-probs",d);
+    const meta=LABEL_MAP[d.label]||{name:d.label,cat:"normal"};
+    const cat=meta.cat;
+
     // Debug bar
-    try{
-      document.getElementById('dbg-conf').textContent='Conf: '+d.confidence+'%';
-      document.getElementById('dbg-cat').textContent='Cat: '+cat+' ('+d.label+')';
-      document.getElementById('dbg-thresh').textContent='Thresh: '+getSosThreshold()+'%';
-    }catch(e){}
-    if(cat==='fall'){
-      setLiveStatus('FALL DETECTED!','fall-alert');
+    $$("d-conf").textContent=d.confidence+"%";
+    $$("d-cat").textContent=cat+" ("+d.label+")";
+    $$("d-thresh").textContent=getSosThreshold()+"%";
+
+    if(cat==="fall"){
+      $$("live-status").textContent="Status: FALL DETECTED!";$$("live-status").style.color="var(--red)";
       consecutiveFalls++;
-      try{document.getElementById('dbg-falls').textContent='Falls: '+consecutiveFalls+'/'+SOS_FALL_CONFIRM;}catch(e){}
-      try{document.getElementById('dbg-sos').textContent='SOS: '+(sosTimer?'ACTIVE':'waiting conf='+d.confidence+'>='+getSosThreshold()+'? '+((d.confidence>=getSosThreshold())?'YES':'NO'));}catch(e){}
-      if(consecutiveFalls>=SOS_FALL_CONFIRM && d.confidence>=getSosThreshold() && !sosTimer){
-        triggerSOS(d.label, d.confidence);
+      $$("d-falls").textContent=consecutiveFalls;
+      const confOk=d.confidence>=getSosThreshold();
+      $$("d-sos").textContent="falls="+consecutiveFalls+"/"+SOS_FALL_CONFIRM+" conf="+d.confidence+">="+getSosThreshold()+"? "+(confOk?"YES":"NO");
+      if(consecutiveFalls>=SOS_FALL_CONFIRM && confOk && !sosTimer){
+        triggerSOS(d.label,d.confidence);
       }
-    } else {
-      if(cat!=='stumble') consecutiveFalls=0;
-      if(cat==='stumble')setLiveStatus('Stumble detected','stumble-alert');
-      else setLiveStatus('Monitoring…','listening');
+    }else{
+      consecutiveFalls=0;$$("d-falls").textContent=0;$$("d-sos").textContent="idle";
+      if(cat==="stumble"){$$("live-status").textContent="Status: Stumble";$$("live-status").style.color="var(--warn)";}
+      else{$$("live-status").textContent="Status: Normal";$$("live-status").style.color="var(--ok)";}
     }
-    addLog(d.label,(LABEL_MAP[d.label]||{name:d.label}).name,cat);
+    addLog(d.label,meta.name,cat);
   }catch(e){
-    document.getElementById('live-result-box').innerHTML=`<span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">Backend error: ${e.message}</span>`;
+    $$("live-result").innerHTML='<span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">Error: '+e.message+'</span>';
+    $$("d-backend").textContent="ERR";$$("d-backend").style.color="var(--red)";
   }
 }
 
 async function startSensors(){
-  if(typeof DeviceMotionEvent==='undefined'){alert('DeviceMotionEvent not supported. Open on a real mobile browser.');return;}
-  if(typeof DeviceMotionEvent.requestPermission==='function'){
-    try{const p=await DeviceMotionEvent.requestPermission();if(p!=='granted'){alert('Permission denied.');return;}}
-    catch(e){alert('Permission error: '+e.message);return;}
+  if(typeof DeviceMotionEvent==="undefined"){alert("DeviceMotionEvent not supported. Open on a mobile browser.");return;}
+  if(typeof DeviceMotionEvent.requestPermission==="function"){
+    try{const p=await DeviceMotionEvent.requestPermission();if(p!=="granted"){alert("Permission denied.");return;}}
+    catch(e){alert("Permission error: "+e.message);return;}
   }
-  running=true;sampleCount=0;predTimer=0;
+  running=true;sampleCount=0;predTimer=0;consecutiveFalls=0;
   accBuf={x:[],y:[],z:[]};gyroBuf={x:[],y:[],z:[]};waveBuf={x:[],y:[],z:[]};
-  document.getElementById('live-controls-off').style.display='none';
-  document.getElementById('live-controls-on').style.display='block';
-  setLiveStatus('Listening…','listening');
-  motionHandler=function(e){
+  $$("ctrl-off").style.display="none";$$("ctrl-on").style.display="block";
+  $$("live-status").textContent="Status: Listening…";$$("live-status").style.color="var(--acc)";
+  motionH=function(e){
     if(!running)return;
     const a=e.accelerationIncludingGravity||e.acceleration||{};
     const rr=e.rotationRate||{};
@@ -953,33 +501,156 @@ async function startSensors(){
     accBuf.x.push(ax);accBuf.y.push(ay);accBuf.z.push(az);
     gyroBuf.x.push(gx);gyroBuf.y.push(gy);gyroBuf.z.push(gz);
     waveBuf.x.push(ax);waveBuf.y.push(ay);waveBuf.z.push(az);
-    if(accBuf.x.length>WINDOW_SIZE){accBuf.x.shift();accBuf.y.shift();accBuf.z.shift();}
-    if(gyroBuf.x.length>WINDOW_SIZE){gyroBuf.x.shift();gyroBuf.y.shift();gyroBuf.z.shift();}
-    if(waveBuf.x.length>160){waveBuf.x.shift();waveBuf.y.shift();waveBuf.z.shift();}
-    document.getElementById('sg-ax').textContent=ax.toFixed(2);
-    document.getElementById('sg-ay').textContent=ay.toFixed(2);
-    document.getElementById('sg-az').textContent=az.toFixed(2);
-    document.getElementById('sg-gx').textContent=gx.toFixed(2);
-    document.getElementById('sg-gy').textContent=gy.toFixed(2);
-    document.getElementById('sg-gz').textContent=gz.toFixed(2);
+    if(accBuf.x.length>WIN){accBuf.x.shift();accBuf.y.shift();accBuf.z.shift();}
+    if(gyroBuf.x.length>WIN){gyroBuf.x.shift();gyroBuf.y.shift();gyroBuf.z.shift();}
+    if(waveBuf.x.length>150){waveBuf.x.shift();waveBuf.y.shift();waveBuf.z.shift();}
+    $$("sg-ax").textContent=ax.toFixed(2);$$("sg-ay").textContent=ay.toFixed(2);$$("sg-az").textContent=az.toFixed(2);
+    $$("sg-gx").textContent=gx.toFixed(2);$$("sg-gy").textContent=gy.toFixed(2);$$("sg-gz").textContent=gz.toFixed(2);
     sampleCount++;predTimer++;
-    document.getElementById('live-sample-ct').textContent=sampleCount+' samples';
-    const filled=accBuf.x.length>=WINDOW_SIZE;
-    const wb=document.getElementById('live-win-badge');
-    wb.textContent=filled?'Window ready':accBuf.x.length+'/'+WINDOW_SIZE+' filling…';
-    wb.style.color=filled?'var(--ok)':'var(--muted)';
+    $$("sample-ct").textContent=sampleCount+" samples";
+    const filled=accBuf.x.length>=WIN;
+    $$("win-badge").textContent=filled?"Window ready":accBuf.x.length+"/"+WIN+" filling…";
+    $$("win-badge").style.color=filled?"var(--ok)":"var(--muted)";
     drawWave();
-    if(filled&&predTimer>=PREDICT_EVERY){predTimer=0;livePredictNow();}
+    if(filled&&predTimer>=PRED_EVERY){predTimer=0;livePredictNow();}
   };
-  window.addEventListener('devicemotion',motionHandler);
+  window.addEventListener("devicemotion",motionH);
 }
 
 function stopSensors(){
-  running=false;
-  if(motionHandler)window.removeEventListener('devicemotion',motionHandler);
-  document.getElementById('live-controls-off').style.display='block';
-  document.getElementById('live-controls-on').style.display='none';
-  setLiveStatus('Idle','idle');
+  running=false;if(motionH)window.removeEventListener("devicemotion",motionH);
+  $$("ctrl-off").style.display="block";$$("ctrl-on").style.display="none";
+  $$("live-status").textContent="Status: Stopped";$$("live-status").style.color="var(--muted)";
+}
+
+/* ══════════════════════════════════════════
+   SOS + VOICE
+══════════════════════════════════════════ */
+let sosTimer=null, sosSecondsLeft=0, sosTotal=10;
+let sosAudioCtx=null, sosBeepInterval=null;
+let sosLabel="", sosConf=0, sosGps=null;
+let recognition=null;
+
+function startBeep(){
+  try{
+    sosAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    sosBeepInterval=setInterval(()=>{
+      const o=sosAudioCtx.createOscillator(),g=sosAudioCtx.createGain();
+      o.connect(g);g.connect(sosAudioCtx.destination);
+      o.frequency.value=880;o.type="square";
+      g.gain.setValueAtTime(0.3,sosAudioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,sosAudioCtx.currentTime+0.25);
+      o.start();o.stop(sosAudioCtx.currentTime+0.25);
+    },700);
+  }catch(e){}
+}
+function stopBeep(){if(sosBeepInterval)clearInterval(sosBeepInterval);if(sosAudioCtx)try{sosAudioCtx.close();}catch(e){}sosAudioCtx=null;sosBeepInterval=null;}
+
+function updateRing(left,total){
+  const ring=$$("sos-ring");if(!ring)return;
+  const c=251.3;ring.style.strokeDashoffset=c*(1-(left/total));
+}
+
+function speak(text,onEnd){
+  try{
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="en-IN";u.rate=0.88;u.pitch=1;u.volume=1;
+    if(onEnd)u.onend=onEnd;
+    window.speechSynthesis.speak(u);
+  }catch(e){if(onEnd)setTimeout(onEnd,100);}
+}
+
+function startListening(onResult){
+  try{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){onResult("");return;}
+    if(recognition)try{recognition.stop();}catch(e){}
+    recognition=new SR();
+    recognition.lang="en-IN";recognition.interimResults=false;recognition.maxAlternatives=3;
+    $$("v-status").textContent='Listening… say "I am OK" or "Help"';
+    recognition.onresult=function(e){
+      const heard=Array.from(e.results[0]).map(r=>r.transcript).join(" ").toLowerCase();
+      $$("v-heard").textContent='"'+heard+'"';$$("v-status").textContent="Heard you";
+      recognition=null;onResult(heard);
+    };
+    recognition.onerror=function(){$$("v-status").textContent="Could not hear — use buttons";recognition=null;onResult("");};
+    recognition.onend=function(){};
+    recognition.start();
+  }catch(e){$$("v-status").textContent="Mic not available — use buttons";onResult("");}
+}
+function stopListening(){if(recognition)try{recognition.stop();}catch(e){}recognition=null;}
+
+function getGPS(){
+  return new Promise(resolve=>{
+    if(!navigator.geolocation){resolve(null);return;}
+    $$("gps-status").textContent="Getting GPS…";
+    navigator.geolocation.getCurrentPosition(
+      pos=>{sosGps={lat:pos.coords.latitude,lon:pos.coords.longitude,acc:Math.round(pos.coords.accuracy)};$$("gps-status").textContent="GPS: "+sosGps.lat.toFixed(5)+", "+sosGps.lon.toFixed(5);resolve(sosGps);},
+      ()=>{$$("gps-status").textContent="GPS unavailable";resolve(null);},
+      {timeout:6000,enableHighAccuracy:true}
+    );
+  });
+}
+
+function processVoice(heard){
+  if(!heard){$$("v-status").textContent="No response — timer continues";return;}
+  const ok=["ok","okay","fine","i am ok","im ok","no","cancel","safe","haan","theek","normal"];
+  const sos=["help","yes","send","emergency","hurt","pain","fallen","madad","call","nahi"];
+  if(ok.some(w=>heard.includes(w))){speak("Okay, stay safe!");setTimeout(cancelSOS,1200);}
+  else if(sos.some(w=>heard.includes(w))){speak("Sending help now!");sendSOSNow();}
+  else{$$("v-status").textContent='Not clear — say "OK" or tap button';speak("Say I am okay to cancel.");}
+}
+
+async function triggerSOS(label,conf){
+  if(sosTimer)return;
+  sosLabel=label;sosConf=conf;sosGps=null;
+  $$("sos-badge").textContent="conf: "+conf+"% — "+label;
+  $$("sos-lbl").textContent="seconds until SOS is sent";
+  $$("v-status").textContent="";$$("v-heard").textContent="";$$("gps-status").textContent="";
+  sosTotal=getSosCountdown();sosSecondsLeft=sosTotal;
+  $$("sos-num").textContent=sosSecondsLeft;
+  updateRing(sosSecondsLeft,sosTotal);
+  $$("sos-overlay").style.display="flex";
+  $$("d-sos").textContent="SOS ACTIVE";$$("d-sos").style.color="var(--red)";
+  startBeep();
+  if(navigator.vibrate)navigator.vibrate([400,150,400,150,400,150,800]);
+  getGPS();
+  speak("Fall detected! Are you okay? Say I am okay to cancel, or I will send help in "+sosTotal+" seconds.",function(){
+    if($$("sos-overlay").style.display==="none")return;
+    setTimeout(function(){startListening(processVoice);},400);
+  });
+  sosTimer=setInterval(function(){
+    sosSecondsLeft--;
+    $$("sos-num").textContent=sosSecondsLeft;
+    updateRing(sosSecondsLeft,sosTotal);
+    if(navigator.vibrate)navigator.vibrate(120);
+    if(sosSecondsLeft<=0){clearInterval(sosTimer);sosTimer=null;stopListening();sendSOSNow();}
+  },1000);
+}
+
+async function sendSOSNow(){
+  if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
+  stopBeep();stopListening();
+  $$("sos-num").textContent="SOS";$$("sos-lbl").textContent="Sending SMS…";
+  speak("Sending emergency alert. Help is on the way!");
+  let gpsLink=null,gpsText="Location unavailable";
+  if(!sosGps){await getGPS();}
+  if(sosGps){gpsLink="https://maps.google.com/?q="+sosGps.lat+","+sosGps.lon;gpsText="Lat: "+sosGps.lat.toFixed(6)+", Lon: "+sosGps.lon.toFixed(6);}
+  try{
+    const r=await fetch(getBase()+"/sos",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({label:sosLabel,confidence:sosConf,gps_text:gpsText,gps_link:gpsLink})});
+    const d=await r.json();
+    if(d.sent){$$("sos-lbl").textContent="SMS sent to "+getSosName()+"!";speak("Message sent!");}
+    else if(d.reason==="cooldown"){$$("sos-lbl").textContent="SMS already sent recently";}
+    else{$$("sos-lbl").textContent="SMS failed: "+(d.reason||"check Twilio");}
+  }catch(e){$$("sos-lbl").textContent="Backend offline — call manually";}
+}
+
+function cancelSOS(){
+  if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
+  stopBeep();stopListening();window.speechSynthesis.cancel();
+  consecutiveFalls=0;$$("d-falls").textContent=0;$$("d-sos").textContent="idle";$$("d-sos").style.color="";
+  $$("sos-overlay").style.display="none";
 }
 </script>
 </body>
