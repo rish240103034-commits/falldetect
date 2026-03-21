@@ -6,622 +6,471 @@
 <title>FallGuard — Motion Intelligence System</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --bg: #090c10;
-    --surface: #0e1420;
-    --surface2: #141c2b;
-    --border: #1e2d45;
-    --accent: #00e5ff;
-    --accent2: #ff3d6b;
-    --warn: #ffb800;
-    --ok: #00e676;
-    --text: #e0eaf8;
-    --muted: #4a6080;
-    --mono: 'Space Mono', monospace;
-    --sans: 'Syne', sans-serif;
-  }
+:root{--bg:#090c10;--surf:#0e1420;--surf2:#141c2b;--bdr:#1e2d45;--acc:#00e5ff;--red:#ff3d6b;--warn:#ffb800;--ok:#00e676;--txt:#e0eaf8;--muted:#4a6080;--mono:'Space Mono',monospace;--sans:'Syne',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.025) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:20px 16px}
+header{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;border-bottom:1px solid var(--bdr);margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--acc),#0066ff);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 20px rgba(0,229,255,.25)}
+.logo h1{font-size:1.4rem;font-weight:800;letter-spacing:-.5px}
+.logo span{font-size:.65rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:2px}
+.online-badge{display:flex;align-items:center;gap:7px;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);border-radius:20px;padding:6px 14px;font-family:var(--mono);font-size:.7rem;color:var(--ok)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,230,118,.4)}50%{box-shadow:0 0 0 5px rgba(0,230,118,0)}}
+.tabs{display:flex;gap:4px;background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:4px;margin-bottom:28px;width:fit-content;flex-wrap:wrap}
+.tab{padding:9px 20px;border:none;background:transparent;color:var(--muted);font-family:var(--sans);font-size:.82rem;font-weight:600;border-radius:8px;cursor:pointer;transition:all .2s}
+.tab.active{background:var(--acc);color:var(--bg)}
+.tab:hover:not(.active){color:var(--txt);background:var(--surf2)}
+.panel{display:none;animation:fadeIn .3s ease}.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:20px}
+.card-label{font-size:.65rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.card-label::before{content:'';width:3px;height:12px;background:var(--acc);border-radius:2px;display:inline-block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border:none;border-radius:9px;font-family:var(--sans);font-size:.83rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-acc{background:var(--acc);color:var(--bg)}.btn-acc:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,229,255,.3)}.btn-acc:disabled{opacity:.5;cursor:default;transform:none}
+.btn-ghost{background:var(--surf2);color:var(--txt);border:1px solid var(--bdr)}.btn-ghost:hover{border-color:var(--acc);color:var(--acc)}
+.btn-danger{background:rgba(255,61,107,.12);color:var(--red);border:1px solid rgba(255,61,107,.3)}
+.alert{padding:10px 14px;border-radius:8px;font-family:var(--mono);font-size:.72rem;margin-bottom:12px}
+.alert-err{background:rgba(255,61,107,.1);border:1px solid rgba(255,61,107,.3);color:var(--red)}
+.result-box{background:var(--bg);border:1px solid var(--bdr);border-radius:12px;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:140px;transition:border-color .4s,box-shadow .4s}
+.result-box.fall{border-color:var(--red);box-shadow:0 0 28px rgba(255,61,107,.1)}
+.result-box.stumble{border-color:var(--warn);box-shadow:0 0 28px rgba(255,184,0,.08)}
+.result-box.normal{border-color:var(--ok);box-shadow:0 0 28px rgba(0,230,118,.08)}
+.res-code{font-size:2.4rem;font-weight:800;letter-spacing:-1px;line-height:1}
+.res-code.fall{color:var(--red)}.res-code.stumble{color:var(--warn)}.res-code.normal{color:var(--ok)}
+.res-name{font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:1.5px}
+.prob-list{display:flex;flex-direction:column;gap:9px}
+.pb-item{display:flex;align-items:center;gap:8px}
+.pb-lbl{font-family:var(--mono);font-size:.62rem;color:var(--muted);width:34px;flex-shrink:0}
+.pb-track{flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.pb-fill{height:100%;border-radius:3px;background:var(--acc);transition:width .6s cubic-bezier(.4,0,.2,1)}
+.pb-val{font-family:var(--mono);font-size:.6rem;color:var(--muted);width:36px;text-align:right;flex-shrink:0}
+.slider-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.field label{display:flex;justify-content:space-between;font-size:.65rem;font-family:var(--mono);color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px}
+.field label span{color:var(--acc)}
+.field input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--bdr);border-radius:2px;outline:none;cursor:pointer}
+.field input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px rgba(0,229,255,.4)}
+.stat-card{background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px}
+.stat-num{font-size:1.8rem;font-weight:800;letter-spacing:-1px;color:var(--acc)}
+.stat-lbl{font-family:var(--mono);font-size:.6rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:1px}
+.tbl-wrap{overflow-x:auto;margin-top:16px}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.75rem}
+th{background:var(--bg);color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:9px 13px;text-align:left;border-bottom:1px solid var(--bdr)}
+td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:700}
+.badge.fall{background:rgba(255,61,107,.12);color:var(--red);border:1px solid rgba(255,61,107,.25)}
+.badge.stumble{background:rgba(255,184,0,.1);color:var(--warn);border:1px solid rgba(255,184,0,.25)}
+.badge.normal{background:rgba(0,230,118,.08);color:var(--ok);border:1px solid rgba(0,230,118,.2)}
+.upload-zone{border:2px dashed var(--bdr);border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--acc);background:rgba(0,229,255,.03)}
+.upload-text{color:var(--muted);font-family:var(--mono);font-size:.78rem}
+.upload-text strong{color:var(--acc)}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.chip{padding:5px 14px;border-radius:20px;font-family:var(--mono);font-size:.7rem;display:flex;align-items:center;gap:5px}
+.chip .n{font-weight:700;font-size:.9rem}
+.chip.fall{background:rgba(255,61,107,.1);color:var(--red);border:1px solid rgba(255,61,107,.2)}
+.chip.stumble{background:rgba(255,184,0,.08);color:var(--warn);border:1px solid rgba(255,184,0,.2)}
+.chip.normal{background:rgba(0,230,118,.06);color:var(--ok);border:1px solid rgba(0,230,118,.18)}
+.spin{width:16px;height:16px;border:2px solid rgba(0,229,255,.2);border-top-color:var(--acc);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dist-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr)}
+.dist-item:last-child{border:none}
+.dist-code{font-family:var(--mono);font-size:.72rem;color:var(--acc);width:38px}
+.dist-name{font-size:.82rem;flex:1}
+.dist-bar-wrap{width:90px;background:var(--bg);border-radius:3px;height:4px}
+.dist-bar{height:100%;border-radius:3px}
+.dist-count{font-family:var(--mono);font-size:.7rem;color:var(--muted);width:38px;text-align:right}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* Live sensor styles */
+.sensor-status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.72rem;padding:6px 14px;border-radius:20px;width:fit-content;transition:all .3s;margin-bottom:14px}
+.sensor-status.idle{background:rgba(74,96,128,.15);color:var(--muted);border:1px solid var(--bdr)}
+.sensor-status.listening{background:rgba(0,229,255,.08);color:var(--acc);border:1px solid rgba(0,229,255,.25)}
+.sensor-status.fall-alert{background:rgba(255,61,107,.12);color:var(--red);border:1px solid rgba(255,61,107,.3)}
+.sensor-status.stumble-alert{background:rgba(255,184,0,.1);color:var(--warn);border:1px solid rgba(255,184,0,.25)}
+.wave-canvas{width:100%;height:88px;display:block;background:var(--bg);border-radius:8px}
+.wave-legend{display:flex;gap:14px;margin-top:7px}
+.wl{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.6rem;color:var(--muted)}
+.wl-dot{width:10px;height:3px;border-radius:2px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-lbl{font-family:var(--mono);font-size:.62rem;color:var(--muted);width:88px;flex-shrink:0}
+.bar-track{flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .25s ease}
+.bar-val{font-family:var(--mono);font-size:.62rem;color:var(--txt);width:44px;text-align:right;flex-shrink:0}
+.sensor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sg-item{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px}
+.sg-axis{font-family:var(--mono);font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.sg-val{font-family:var(--mono);font-size:1rem;font-weight:700}
+.perm-hint{background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.15);border-radius:10px;padding:14px 18px;font-size:.8rem;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.perm-hint strong{color:var(--acc)}
+.url-row{display:flex;gap:8px;align-items:center}
+.url-input{flex:1;background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:9px 13px;color:var(--txt);font-family:var(--mono);font-size:.78rem;outline:none;transition:border-color .2s}
+.url-input:focus{border-color:var(--acc)}
+.log-row{font-family:var(--mono);font-size:.68rem;color:var(--muted);padding:5px 0;border-bottom:1px solid rgba(30,45,69,.4);display:flex;gap:10px;align-items:center}
+.log-row:last-child{border:none}
+.log-t{color:var(--bdr);flex-shrink:0}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Grid background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 24px; }
-
-  /* Header */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 0 32px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 36px;
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .logo-icon {
-    width: 48px; height: 48px;
-    background: linear-gradient(135deg, var(--accent), #0066ff);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-    box-shadow: 0 0 24px rgba(0,229,255,0.3);
-  }
-  .logo-text h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
-  .logo-text span { font-size: 0.75rem; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 2px; }
-  .status-badge {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(0,230,118,0.08);
-    border: 1px solid rgba(0,230,118,0.2);
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--ok);
-  }
-  .status-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--ok);
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse { 0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(0,230,118,0.4); } 50% { opacity:0.8; box-shadow: 0 0 0 6px rgba(0,230,118,0); } }
-
-  /* Tabs */
-  .tabs {
-    display: flex; gap: 4px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 4px;
-    margin-bottom: 32px;
-    width: fit-content;
-  }
-  .tab {
-    padding: 10px 24px;
-    border: none;
-    background: transparent;
-    color: var(--muted);
-    font-family: var(--sans);
-    font-size: 0.875rem;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-  .tab.active {
-    background: var(--accent);
-    color: var(--bg);
-  }
-  .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
-
-  /* Panels */
-  .panel { display: none; animation: fadeIn 0.3s ease; }
-  .panel.active { display: block; }
-  @keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
-
-  /* Cards */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 28px;
-  }
-  .card-title {
-    font-size: 0.7rem;
-    font-family: var(--mono);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--muted);
-    margin-bottom: 20px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .card-title::before {
-    content: '';
-    width: 3px; height: 14px;
-    background: var(--accent);
-    border-radius: 2px;
-    display: inline-block;
-  }
-
-  /* Grid layout */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .col-span-2 { grid-column: span 2; }
-
-  /* Form */
-  .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-  .field label {
-    display: block;
-    font-size: 0.7rem;
-    font-family: var(--mono);
-    color: var(--muted);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .field input {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 0.875rem;
-    transition: border-color 0.2s;
-    outline: none;
-  }
-  .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,0.08); }
-  .field input::placeholder { color: var(--muted); }
-
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 12px 28px;
-    border: none;
-    border-radius: 10px;
-    font-family: var(--sans);
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-  .btn-primary {
-    background: var(--accent);
-    color: var(--bg);
-    box-shadow: 0 0 20px rgba(0,229,255,0.2);
-  }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(0,229,255,0.35); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-secondary {
-    background: var(--surface2);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* Result display */
-  .result-box {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 12px;
-    transition: border-color 0.3s;
-  }
-  .result-box.fall { border-color: var(--accent2); box-shadow: 0 0 30px rgba(255,61,107,0.1); }
-  .result-box.stumble { border-color: var(--warn); box-shadow: 0 0 30px rgba(255,184,0,0.1); }
-  .result-box.normal { border-color: var(--ok); box-shadow: 0 0 30px rgba(0,230,118,0.1); }
-
-  .result-label {
-    font-size: 3rem;
-    font-weight: 800;
-    letter-spacing: -2px;
-  }
-  .result-label.fall { color: var(--accent2); }
-  .result-label.stumble { color: var(--warn); }
-  .result-label.normal { color: var(--ok); }
-
-  .result-name {
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
-  .result-conf {
-    font-family: var(--mono);
-    font-size: 1rem;
-    color: var(--text);
-  }
-  .empty-state { color: var(--muted); font-family: var(--mono); font-size: 0.8rem; text-align: center; }
-
-  /* Probability bars */
-  .prob-list { display: flex; flex-direction: column; gap: 10px; }
-  .prob-item { display: flex; align-items: center; gap: 12px; }
-  .prob-lbl { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); width: 40px; flex-shrink: 0; }
-  .prob-bar-wrap { flex: 1; background: var(--bg); border-radius: 4px; height: 6px; overflow: hidden; }
-  .prob-bar { height: 100%; border-radius: 4px; background: var(--accent); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
-  .prob-val { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); width: 40px; text-align: right; flex-shrink: 0; }
-
-  /* Upload zone */
-  .upload-zone {
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    padding: 48px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .upload-zone:hover, .upload-zone.dragover {
-    border-color: var(--accent);
-    background: rgba(0,229,255,0.03);
-  }
-  .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
-  .upload-text { color: var(--muted); font-family: var(--mono); font-size: 0.8rem; }
-  .upload-text strong { color: var(--accent); }
-
-  /* CSV results table */
-  .result-table-wrap { overflow-x: auto; margin-top: 20px; }
-  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.78rem; }
-  th { background: var(--bg); color: var(--muted); text-transform: uppercase; letter-spacing: 1px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
-  td { padding: 10px 14px; border-bottom: 1px solid rgba(30,45,69,0.5); }
-  tr:hover td { background: rgba(0,229,255,0.03); }
-  .badge {
-    display: inline-block; padding: 3px 10px;
-    border-radius: 20px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
-  }
-  .badge.fall { background: rgba(255,61,107,0.15); color: var(--accent2); border: 1px solid rgba(255,61,107,0.3); }
-  .badge.stumble { background: rgba(255,184,0,0.12); color: var(--warn); border: 1px solid rgba(255,184,0,0.3); }
-  .badge.normal { background: rgba(0,230,118,0.1); color: var(--ok); border: 1px solid rgba(0,230,118,0.25); }
-
-  /* Stats */
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 24px;
-  }
-  .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
-  .stat-lbl { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
-
-  .dist-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .dist-item:last-child { border: none; }
-  .dist-code { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); width: 40px; }
-  .dist-name { font-size: 0.85rem; flex: 1; }
-  .dist-bar-wrap { width: 100px; background: var(--bg); border-radius: 4px; height: 4px; }
-  .dist-bar { height: 100%; border-radius: 4px; }
-  .dist-count { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); width: 40px; text-align: right; }
-
-  .spinner {
-    width: 20px; height: 20px;
-    border: 2px solid rgba(0,229,255,0.2);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-    display: inline-block;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .alert {
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    margin-bottom: 16px;
-  }
-  .alert-error { background: rgba(255,61,107,0.1); border: 1px solid rgba(255,61,107,0.3); color: var(--accent2); }
-  .alert-success { background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.25); color: var(--ok); }
-
-  .summary-chips { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
-  .chip {
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .chip .num { font-weight: 700; font-size: 1rem; }
-  .chip.fall { background: rgba(255,61,107,0.12); color: var(--accent2); border: 1px solid rgba(255,61,107,0.2); }
-  .chip.stumble { background: rgba(255,184,0,0.1); color: var(--warn); border: 1px solid rgba(255,184,0,0.2); }
-  .chip.normal { background: rgba(0,230,118,0.08); color: var(--ok); border: 1px solid rgba(0,230,118,0.2); }
-
-  @media (max-width: 768px) {
-    .grid-2, .form-grid { grid-template-columns: 1fr; }
-    .col-span-2 { grid-column: auto; }
-    .grid-3 { grid-template-columns: 1fr; }
-  }
+@media(max-width:720px){.grid2,.slider-grid,.grid3,.sensor-grid{grid-template-columns:1fr}.tabs{gap:2px}.tab{padding:8px 14px;font-size:.75rem}}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 
-  <header>
-    <div class="logo">
-      <div class="logo-icon">🛡️</div>
-      <div class="logo-text">
-        <h1>FallGuard</h1>
-        <span>Motion Intelligence System</span>
-      </div>
-    </div>
-    <div class="status-badge">
-      <div class="status-dot"></div>
-      Model Online
-    </div>
-  </header>
-
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('single')">Manual Input</button>
-    <button class="tab" onclick="switchTab('csv')">CSV Upload</button>
-    <button class="tab" onclick="switchTab('stats')">Dataset Stats</button>
-  </div>
-
-  <!-- PANEL: Single Prediction -->
-  <div id="panel-single" class="panel active">
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Sensor Features</div>
-        <div id="single-alert"></div>
-        <div class="form-grid">
-          <div class="field"><label>acc_max</label><input type="number" id="acc_max" placeholder="e.g. 26.04" step="0.001"/></div>
-          <div class="field"><label>gyro_max</label><input type="number" id="gyro_max" placeholder="e.g. 7.31" step="0.001"/></div>
-          <div class="field"><label>lin_max</label><input type="number" id="lin_max" placeholder="e.g. 11.13" step="0.001"/></div>
-          <div class="field"><label>acc_kurtosis</label><input type="number" id="acc_kurtosis" placeholder="e.g. 20.38" step="0.001"/></div>
-          <div class="field"><label>gyro_kurtosis</label><input type="number" id="gyro_kurtosis" placeholder="e.g. 2.78" step="0.001"/></div>
-          <div class="field"><label>acc_skewness</label><input type="number" id="acc_skewness" placeholder="e.g. 3.89" step="0.001"/></div>
-          <div class="field"><label>gyro_skewness</label><input type="number" id="gyro_skewness" placeholder="e.g. 1.59" step="0.001"/></div>
-          <div class="field"><label>post_gyro_max</label><input type="number" id="post_gyro_max" placeholder="e.g. 7.09" step="0.001"/></div>
-          <div class="field"><label>post_lin_max</label><input type="number" id="post_lin_max" placeholder="e.g. 10.79" step="0.001"/></div>
-        </div>
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="predict()"><span id="btn-spinner"></span> Predict</button>
-          <button class="btn btn-secondary" onclick="fillSample()">Load Sample</button>
-          <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
-        </div>
-      </div>
-
-      <div style="display:flex; flex-direction:column; gap:20px;">
-        <div class="card">
-          <div class="card-title">Prediction Result</div>
-          <div class="result-box" id="result-box">
-            <div class="empty-state">Enter sensor data<br/>and click Predict</div>
-          </div>
-        </div>
-        <div class="card" id="prob-card" style="display:none;">
-          <div class="card-title">Top Probabilities</div>
-          <div class="prob-list" id="prob-list"></div>
-        </div>
-      </div>
+<header>
+  <div class="logo">
+    <div class="logo-icon">🛡️</div>
+    <div>
+      <h1>FallGuard</h1>
+      <span>Motion Intelligence System</span>
     </div>
   </div>
+  <div class="online-badge"><div class="dot"></div>Model Online</div>
+</header>
 
-  <!-- PANEL: CSV -->
-  <div id="panel-csv" class="panel">
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('live',this)">📱 Live Sensor</button>
+  <button class="tab" onclick="switchTab('manual',this)">Manual Input</button>
+  <button class="tab" onclick="switchTab('csv',this)">CSV Upload</button>
+  <button class="tab" onclick="switchTab('stats',this)">Dataset Stats</button>
+</div>
+
+<!-- LIVE SENSOR -->
+<div id="panel-live" class="panel active">
+  <div class="grid2" style="margin-bottom:18px">
     <div class="card">
-      <div class="card-title">Batch Prediction — CSV Upload</div>
-      <div id="csv-alert"></div>
-      <div class="upload-zone" id="drop-zone" onclick="document.getElementById('csv-file').click()">
-        <div class="upload-icon">📂</div>
-        <div class="upload-text"><strong>Click to upload</strong> or drag & drop</div>
-        <div class="upload-text" style="margin-top:6px;">Accepts .csv with sensor columns</div>
+      <div class="card-label">Device sensor stream</div>
+      <div class="perm-hint">Open on your <strong>phone</strong>. Tap <strong>Start Detection</strong> — the browser reads your accelerometer &amp; gyroscope and classifies your activity every ~2.5 seconds.</div>
+      <div id="live-status" class="sensor-status idle"><span id="live-dot" class="dot" style="background:var(--muted);animation:none"></span><span id="live-status-txt">Idle</span></div>
+      <div id="live-controls-off"><button class="btn btn-acc" onclick="startSensors()">▶ Start Detection</button></div>
+      <div id="live-controls-on" style="display:none">
+        <canvas class="wave-canvas" id="liveWave"></canvas>
+        <div class="wave-legend">
+          <div class="wl"><div class="wl-dot" style="background:#378ADD"></div>Acc X</div>
+          <div class="wl"><div class="wl-dot" style="background:#1D9E75"></div>Acc Y</div>
+          <div class="wl"><div class="wl-dot" style="background:#EF9F27"></div>Acc Z</div>
+        </div>
+        <div style="margin-top:14px">
+          <div class="bar-row"><span class="bar-lbl">acc_max</span><div class="bar-track"><div class="bar-fill" id="lb-acc" style="background:#378ADD;width:0%"></div></div><span class="bar-val" id="lv-acc">—</span></div>
+          <div class="bar-row"><span class="bar-lbl">gyro_max</span><div class="bar-track"><div class="bar-fill" id="lb-gyro" style="background:#1D9E75;width:0%"></div></div><span class="bar-val" id="lv-gyro">—</span></div>
+          <div class="bar-row"><span class="bar-lbl">lin_max</span><div class="bar-track"><div class="bar-fill" id="lb-lin" style="background:#EF9F27;width:0%"></div></div><span class="bar-val" id="lv-lin">—</span></div>
+          <div class="bar-row"><span class="bar-lbl">acc_kurtosis</span><div class="bar-track"><div class="bar-fill" id="lb-kurt" style="background:#7F77DD;width:0%"></div></div><span class="bar-val" id="lv-kurt">—</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn btn-danger" onclick="stopSensors()">■ Stop</button>
+          <span id="live-sample-ct" style="font-family:var(--mono);font-size:.68rem;color:var(--muted)">0 samples</span>
+          <span id="live-win-badge" style="font-family:var(--mono);font-size:.65rem;color:var(--muted)">Filling window…</span>
+        </div>
       </div>
-      <input type="file" id="csv-file" accept=".csv" style="display:none;" onchange="uploadCSV(this)"/>
-      <div id="csv-results"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-label">Raw sensor values</div>
+        <div class="sensor-grid">
+          <div class="sg-item"><div class="sg-axis">Acc X</div><div class="sg-val" id="sg-ax" style="color:#378ADD">—</div></div>
+          <div class="sg-item"><div class="sg-axis">Acc Y</div><div class="sg-val" id="sg-ay" style="color:#1D9E75">—</div></div>
+          <div class="sg-item"><div class="sg-axis">Acc Z</div><div class="sg-val" id="sg-az" style="color:#EF9F27">—</div></div>
+          <div class="sg-item"><div class="sg-axis">Gyro X</div><div class="sg-val" id="sg-gx" style="color:var(--acc)">—</div></div>
+          <div class="sg-item"><div class="sg-axis">Gyro Y</div><div class="sg-val" id="sg-gy" style="color:var(--acc)">—</div></div>
+          <div class="sg-item"><div class="sg-axis">Gyro Z</div><div class="sg-val" id="sg-gz" style="color:var(--acc)">—</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Live prediction</div>
+        <div class="result-box" id="live-result-box" style="min-height:110px"><span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">Start detection to predict…</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Top probabilities</div>
+        <div class="prob-list" id="live-prob-list"><span style="font-family:var(--mono);font-size:.65rem;color:var(--muted)">No predictions yet</span></div>
+      </div>
     </div>
   </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-label">Backend URL</div>
+    <div class="url-row">
+      <input class="url-input" id="api-url" value="http://localhost:5000/api/predict" placeholder="http://192.168.x.x:5000/api/predict"/>
+      <button class="btn btn-ghost" onclick="testConn()">Test</button>
+    </div>
+    <div id="conn-msg" style="font-family:var(--mono);font-size:.68rem;margin-top:7px;color:var(--muted)"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">Detection log</div>
+    <div id="live-log" style="max-height:140px;overflow-y:auto"><div style="font-family:var(--mono);font-size:.68rem;color:var(--muted)">Nothing logged yet</div></div>
+  </div>
+</div>
 
-  <!-- PANEL: Stats -->
-  <div id="panel-stats" class="panel">
-    <div id="stats-content">
-      <div style="text-align:center; padding:60px; color:var(--muted); font-family:var(--mono); font-size:0.8rem;">
-        Loading dataset statistics...
+<!-- MANUAL -->
+<div id="panel-manual" class="panel">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-label">Sensor Features</div>
+      <div id="manual-alert"></div>
+      <div class="slider-grid">
+        <div class="field"><label>acc_max <span id="sv-acc_max">26.0</span></label><input type="range" id="sr-acc_max" min="5" max="45" step="0.1" value="26" oninput="syncField('acc_max',this.value)"></div>
+        <div class="field"><label>gyro_max <span id="sv-gyro_max">7.3</span></label><input type="range" id="sr-gyro_max" min="1" max="20" step="0.1" value="7.3" oninput="syncField('gyro_max',this.value)"></div>
+        <div class="field"><label>lin_max <span id="sv-lin_max">11.1</span></label><input type="range" id="sr-lin_max" min="2" max="25" step="0.1" value="11.1" oninput="syncField('lin_max',this.value)"></div>
+        <div class="field"><label>acc_kurtosis <span id="sv-acc_kurtosis">20.4</span></label><input type="range" id="sr-acc_kurtosis" min="1" max="60" step="0.1" value="20.4" oninput="syncField('acc_kurtosis',this.value)"></div>
+        <div class="field"><label>gyro_kurtosis <span id="sv-gyro_kurtosis">2.8</span></label><input type="range" id="sr-gyro_kurtosis" min="1" max="40" step="0.1" value="2.8" oninput="syncField('gyro_kurtosis',this.value)"></div>
+        <div class="field"><label>acc_skewness <span id="sv-acc_skewness">3.9</span></label><input type="range" id="sr-acc_skewness" min="-5" max="10" step="0.1" value="3.9" oninput="syncField('acc_skewness',this.value)"></div>
+        <div class="field"><label>gyro_skewness <span id="sv-gyro_skewness">1.6</span></label><input type="range" id="sr-gyro_skewness" min="-5" max="8" step="0.1" value="1.6" oninput="syncField('gyro_skewness',this.value)"></div>
+        <div class="field"><label>post_gyro_max <span id="sv-post_gyro_max">7.1</span></label><input type="range" id="sr-post_gyro_max" min="1" max="18" step="0.1" value="7.1" oninput="syncField('post_gyro_max',this.value)"></div>
+        <div class="field" style="grid-column:span 3"><label>post_lin_max <span id="sv-post_lin_max">10.8</span></label><input type="range" id="sr-post_lin_max" min="1" max="22" step="0.1" value="10.8" oninput="syncField('post_lin_max',this.value)"></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-acc" id="manualPredBtn" onclick="manualPredict()"><span id="manual-spin"></span>Predict</button>
+        <button class="btn btn-ghost" onclick="loadSample()">Load Sample</button>
+        <button class="btn btn-ghost" onclick="clearManual()">Clear</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-label">Prediction</div>
+        <div class="result-box" id="manual-result-box"><span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">Enter values and click Predict</span></div>
+      </div>
+      <div class="card" id="manual-prob-card" style="display:none">
+        <div class="card-label">Top Probabilities</div>
+        <div class="prob-list" id="manual-prob-list"></div>
       </div>
     </div>
   </div>
+</div>
+
+<!-- CSV -->
+<div id="panel-csv" class="panel">
+  <div class="card">
+    <div class="card-label">Batch Prediction — CSV Upload</div>
+    <div id="csv-alert"></div>
+    <div class="upload-zone" id="drop-zone" onclick="document.getElementById('csv-file').click()">
+      <div style="font-size:2rem;margin-bottom:10px">📂</div>
+      <div class="upload-text"><strong>Click to upload</strong> or drag &amp; drop a CSV</div>
+      <div class="upload-text" style="margin-top:5px">Must contain the 9 sensor feature columns</div>
+    </div>
+    <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="uploadCSV(this)"/>
+    <div id="csv-results"></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div id="panel-stats" class="panel">
+  <div id="stats-content"><div style="text-align:center;padding:60px;font-family:var(--mono);font-size:.75rem;color:var(--muted)">Loading…</div></div>
+</div>
 
 </div>
 
 <script>
-const API = "http://localhost:5000/api";
+const FEATURES=['acc_max','gyro_max','lin_max','acc_kurtosis','gyro_kurtosis','acc_skewness','gyro_skewness','post_gyro_max','post_lin_max'];
+const LABEL_MAP={FOL:{name:'Forward Fall',cat:'fall'},FKL:{name:'Fall Kneel',cat:'fall'},SDL:{name:'Sideways Fall',cat:'fall'},BSC:{name:'Back Fall',cat:'fall'},STU:{name:'Stumble',cat:'stumble'},WAL:{name:'Walking',cat:'normal'},JOG:{name:'Jogging',cat:'normal'},STD:{name:'Standing',cat:'normal'},STN:{name:'Standing Still',cat:'normal'},JUM:{name:'Jumping',cat:'normal'},CSI:{name:'Chair Sit-In',cat:'normal'},CSO:{name:'Chair Sit-Out',cat:'normal'},SCH:{name:'Sit Chair',cat:'normal'}};
+const CAT_COLOR={fall:'var(--red)',stumble:'var(--warn)',normal:'var(--ok)'};
+const CAT_LABEL={fall:'FALL DETECTED',stumble:'STUMBLE',normal:'NORMAL'};
 
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('panel-' + name).classList.add('active');
-  if (name === 'stats') loadStats();
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  if(name==='stats')loadStats();
 }
 
-function showAlert(container, msg, type='error') {
-  document.getElementById(container).innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
-}
-function clearAlert(container) { document.getElementById(container).innerHTML = ''; }
+function getApiBase(){return document.getElementById('api-url').value.trim().replace(/\/predict$/,'');}
 
-function fillSample() {
-  const sample = {
-    acc_max: 26.04, gyro_max: 7.31, acc_kurtosis: 20.38, gyro_kurtosis: 2.78,
-    lin_max: 11.13, acc_skewness: 3.89, gyro_skewness: 1.59, post_gyro_max: 7.09, post_lin_max: 10.79
+function renderResult(boxId,probId,probCardId,json){
+  const meta=LABEL_MAP[json.label]||{name:json.label,cat:'normal'};
+  const cat=meta.cat;
+  const box=document.getElementById(boxId);
+  box.className='result-box '+cat;
+  box.innerHTML=`<div class="res-code ${cat}">${json.label}</div><div class="res-name">${meta.name}</div><div style="font-size:.75rem;color:${CAT_COLOR[cat]};font-family:var(--mono);font-weight:700">${CAT_LABEL[cat]}</div><div style="font-family:var(--mono);font-size:.75rem;color:var(--muted)">${json.confidence}% confidence</div>`;
+  if(json.top5&&document.getElementById(probId)){
+    if(probCardId)document.getElementById(probCardId).style.display='block';
+    document.getElementById(probId).innerHTML=json.top5.map(t=>`<div class="pb-item"><span class="pb-lbl">${t.label}</span><div class="pb-track"><div class="pb-fill" style="width:${t.prob}%"></div></div><span class="pb-val">${t.prob.toFixed(1)}%</span></div>`).join('');
+  }
+  return cat;
+}
+
+/* Manual */
+function syncField(f,v){document.getElementById('sv-'+f).textContent=parseFloat(v).toFixed(1);}
+function getManualData(){const d={};FEATURES.forEach(f=>d[f]=parseFloat(document.getElementById('sr-'+f).value));return d;}
+function loadSample(){const s={acc_max:26.04,gyro_max:7.31,lin_max:11.13,acc_kurtosis:20.38,gyro_kurtosis:2.78,acc_skewness:3.89,gyro_skewness:1.59,post_gyro_max:7.09,post_lin_max:10.79};FEATURES.forEach(f=>{document.getElementById('sr-'+f).value=s[f];syncField(f,s[f]);});}
+function clearManual(){document.getElementById('manual-result-box').className='result-box';document.getElementById('manual-result-box').innerHTML='<span style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">Enter values and click Predict</span>';document.getElementById('manual-prob-card').style.display='none';}
+async function manualPredict(){
+  document.getElementById('manual-alert').innerHTML='';
+  const btn=document.getElementById('manualPredBtn');btn.disabled=true;
+  document.getElementById('manual-spin').innerHTML='<span class="spin"></span> ';
+  try{const r=await fetch(getApiBase()+'/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(getManualData())});const d=await r.json();if(d.error)throw new Error(d.error);renderResult('manual-result-box','manual-prob-list','manual-prob-card',d);}
+  catch(e){document.getElementById('manual-alert').innerHTML=`<div class="alert alert-err">${e.message}</div>`;}
+  finally{btn.disabled=false;document.getElementById('manual-spin').innerHTML='';}
+}
+
+/* CSV */
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)uploadCSV({files:[f]})});
+async function uploadCSV(input){
+  const file=input.files[0];if(!file)return;
+  document.getElementById('csv-alert').innerHTML='';
+  document.getElementById('csv-results').innerHTML='<div style="padding:20px;text-align:center"><span class="spin"></span></div>';
+  const fd=new FormData();fd.append('file',file);
+  try{const r=await fetch(getApiBase()+'/predict-csv',{method:'POST',body:fd});const d=await r.json();
+    if(d.error){document.getElementById('csv-alert').innerHTML=`<div class="alert alert-err">${d.error}</div>`;document.getElementById('csv-results').innerHTML='';return;}
+    const s=d.summary;
+    const chips=['fall','stumble','normal'].map(c=>`<div class="chip ${c}"><span class="n">${s[c]||0}</span>${c}</div>`).join('');
+    const rows=d.results.slice(0,100).map(r=>`<tr><td>${r.row}</td><td style="color:var(--acc);font-family:var(--mono)">${r.label}</td><td>${r.name}</td><td><span class="badge ${r.category}">${r.category.toUpperCase()}</span></td></tr>`).join('');
+    document.getElementById('csv-results').innerHTML=`<div style="margin-top:16px"><div style="font-family:var(--mono);font-size:.68rem;color:var(--muted);margin-bottom:8px">${d.total} predictions${d.results.length>100?' — first 100 shown':''}</div><div class="chips">${chips}</div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Label</th><th>Activity</th><th>Category</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }catch(e){document.getElementById('csv-alert').innerHTML=`<div class="alert alert-err">${e.message}</div>`;document.getElementById('csv-results').innerHTML='';}
+}
+
+/* Stats */
+async function loadStats(){
+  try{const r=await fetch(getApiBase()+'/stats');const d=await r.json();
+    if(d.error){document.getElementById('stats-content').innerHTML=`<div class="alert alert-err">${d.error}</div>`;return;}
+    const dist=d.label_distribution;const maxC=Math.max(...Object.values(dist).map(x=>x.count));
+    const cc={fall:'var(--red)',stumble:'var(--warn)',normal:'var(--ok)',unknown:'var(--muted)'};
+    const rows=Object.entries(dist).sort((a,b)=>b[1].count-a[1].count).map(([code,dd])=>`<div class="dist-item"><span class="dist-code">${code}</span><span class="dist-name">${dd.name}</span><div class="dist-bar-wrap"><div class="dist-bar" style="width:${Math.round(dd.count/maxC*100)}%;background:${cc[dd.category]||'var(--muted)'}"></div></div><span class="dist-count">${dd.count}</span></div>`).join('');
+    const fC=Object.values(dist).filter(x=>x.category==='fall').reduce((s,x)=>s+x.count,0);
+    const nC=Object.values(dist).filter(x=>x.category==='normal').reduce((s,x)=>s+x.count,0);
+    document.getElementById('stats-content').innerHTML=`<div class="grid3" style="margin-bottom:18px"><div class="stat-card"><div class="stat-num">${d.total_samples.toLocaleString()}</div><div class="stat-lbl">Total Samples</div></div><div class="stat-card"><div class="stat-num" style="color:var(--red)">${d.fall_percentage}%</div><div class="stat-lbl">Fall Events</div></div><div class="stat-card"><div class="stat-num" style="color:var(--ok)">${Object.keys(dist).length}</div><div class="stat-lbl">Activity Classes</div></div></div><div class="grid2"><div class="card"><div class="card-label">Label Distribution</div>${rows}</div><div class="card"><div class="card-label">Feature Columns</div><div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px">${d.features.map(f=>`<div style="font-family:var(--mono);font-size:.75rem;padding:7px 11px;background:var(--bg);border-radius:6px;border:1px solid var(--bdr);color:var(--acc)">${f}</div>`).join('')}</div><div class="card-label">Category Totals</div><div class="dist-item"><span style="font-family:var(--mono);font-size:.78rem;color:var(--red);flex:1">Fall events</span><span style="font-family:var(--mono);font-size:.78rem">${fC}</span></div><div class="dist-item"><span style="font-family:var(--mono);font-size:.78rem;color:var(--ok);flex:1">Normal activity</span><span style="font-family:var(--mono);font-size:.78rem">${nC}</span></div></div></div>`;
+  }catch(e){document.getElementById('stats-content').innerHTML=`<div class="alert alert-err">${e.message}</div>`;}
+}
+
+/* Connection test */
+async function testConn(){
+  const el=document.getElementById('conn-msg');el.textContent='Testing…';el.style.color='var(--muted)';
+  try{const r=await fetch(getApiBase()+'/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acc_max:26,gyro_max:7,lin_max:11,acc_kurtosis:20,gyro_kurtosis:3,acc_skewness:4,gyro_skewness:1.6,post_gyro_max:7,post_lin_max:11})});
+    const d=await r.json();el.style.color='var(--ok)';el.textContent=`Connected — got: ${d.label} (${d.confidence}%)`;
+  }catch(e){el.style.color='var(--red)';el.textContent='Failed: '+e.message;}
+}
+
+/* Live sensor */
+const WINDOW_SIZE=50,PREDICT_EVERY=25;
+let running=false,motionHandler=null;
+let accBuf={x:[],y:[],z:[]},gyroBuf={x:[],y:[],z:[]},waveBuf={x:[],y:[],z:[]};
+let sampleCount=0,predTimer=0,logItems=[];
+
+function mag(x,y,z){return Math.sqrt(x*x+y*y+z*z);}
+function mean(a){return a.length?a.reduce((s,v)=>s+v,0)/a.length:0;}
+function variance(a){const m=mean(a);return a.length?a.reduce((s,v)=>s+(v-m)**2,0)/a.length:0;}
+function kurtosis(a){const m=mean(a),v=variance(a);if(!v||a.length<4)return 0;return a.reduce((s,x)=>s+(x-m)**4,0)/(a.length*v**2)-3;}
+function skewness(a){const m=mean(a),v=variance(a);if(!v||a.length<3)return 0;return a.reduce((s,x)=>s+(x-m)**3,0)/(a.length*Math.pow(v,1.5));}
+
+function computeFeatures(){
+  const ax=accBuf.x,ay=accBuf.y,az=accBuf.z,gx=gyroBuf.x,gy=gyroBuf.y,gz=gyroBuf.z;
+  const aM=ax.map((v,i)=>mag(v,ay[i],az[i]));
+  const gM=gx.map((v,i)=>mag(v,gy[i],gz[i]));
+  const lM=aM.map(v=>Math.abs(v-9.81));
+  const h=Math.floor(aM.length/2);
+  return{acc_max:Math.max(...aM),gyro_max:Math.max(...gM),lin_max:Math.max(...lM),acc_kurtosis:kurtosis(aM),gyro_kurtosis:kurtosis(gM),acc_skewness:skewness(aM),gyro_skewness:skewness(gM),post_gyro_max:Math.max(...gM.slice(h)),post_lin_max:Math.max(...lM.slice(h))};
+}
+
+function setLiveStatus(txt,cls){
+  const el=document.getElementById('live-status');el.className='sensor-status '+cls;
+  document.getElementById('live-status-txt').textContent=txt;
+  const dot=document.getElementById('live-dot');
+  dot.style.background=cls==='listening'?'var(--acc)':cls==='fall-alert'?'var(--red)':cls==='stumble-alert'?'var(--warn)':'var(--muted)';
+  dot.style.animation=cls==='idle'?'none':'pulse 1.4s ease-in-out infinite';
+}
+
+function clamp01(v,max){return Math.max(0,Math.min(100,v/max*100));}
+
+function updateLiveBars(f){
+  document.getElementById('lb-acc').style.width=clamp01(f.acc_max,45)+'%';
+  document.getElementById('lb-gyro').style.width=clamp01(f.gyro_max,20)+'%';
+  document.getElementById('lb-lin').style.width=clamp01(f.lin_max,25)+'%';
+  document.getElementById('lb-kurt').style.width=clamp01(Math.abs(f.acc_kurtosis),60)+'%';
+  document.getElementById('lv-acc').textContent=f.acc_max.toFixed(2);
+  document.getElementById('lv-gyro').textContent=f.gyro_max.toFixed(2);
+  document.getElementById('lv-lin').textContent=f.lin_max.toFixed(2);
+  document.getElementById('lv-kurt').textContent=Math.abs(f.acc_kurtosis).toFixed(2);
+}
+
+function drawWave(){
+  const canvas=document.getElementById('liveWave');if(!canvas)return;
+  const W=canvas.offsetWidth||600,H=88,dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.fillStyle='#090c10';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(30,45,69,.4)';ctx.lineWidth=.5;
+  [H/4,H/2,H*3/4].forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();});
+  [{k:'x',c:'#378ADD'},{k:'y',c:'#1D9E75'},{k:'z',c:'#EF9F27'}].forEach(({k,c})=>{
+    const arr=waveBuf[k];if(arr.length<2)return;
+    ctx.beginPath();ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.globalAlpha=.9;
+    arr.forEach((v,i)=>{const x=i/(arr.length-1)*W,y=H/2-(v/20)*H/2;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.stroke();ctx.globalAlpha=1;
+  });
+}
+
+function addLog(code,name,cat){
+  const now=new Date();
+  const t=[now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>n.toString().padStart(2,'0')).join(':');
+  logItems.unshift({t,code,name,cat});if(logItems.length>30)logItems.pop();
+  document.getElementById('live-log').innerHTML=logItems.map(e=>`<div class="log-row"><span class="log-t">${e.t}</span><span style="color:${e.cat==='fall'?'var(--red)':e.cat==='stumble'?'var(--warn)':'var(--ok)'};font-weight:700">${e.code}</span><span>${e.name}</span></div>`).join('');
+}
+
+async function livePredictNow(){
+  if(!running)return;
+  const f=computeFeatures();updateLiveBars(f);
+  try{
+    const r=await fetch(getApiBase()+'/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(f)});
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    renderResult('live-result-box','live-prob-list',null,d);
+    const cat=(LABEL_MAP[d.label]||{cat:'normal'}).cat;
+    if(cat==='fall')setLiveStatus('FALL DETECTED!','fall-alert');
+    else if(cat==='stumble')setLiveStatus('Stumble detected','stumble-alert');
+    else setLiveStatus('Monitoring…','listening');
+    addLog(d.label,(LABEL_MAP[d.label]||{name:d.label}).name,cat);
+  }catch(e){
+    document.getElementById('live-result-box').innerHTML=`<span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">Backend error: ${e.message}</span>`;
+  }
+}
+
+async function startSensors(){
+  if(typeof DeviceMotionEvent==='undefined'){alert('DeviceMotionEvent not supported. Open on a real mobile browser.');return;}
+  if(typeof DeviceMotionEvent.requestPermission==='function'){
+    try{const p=await DeviceMotionEvent.requestPermission();if(p!=='granted'){alert('Permission denied.');return;}}
+    catch(e){alert('Permission error: '+e.message);return;}
+  }
+  running=true;sampleCount=0;predTimer=0;
+  accBuf={x:[],y:[],z:[]};gyroBuf={x:[],y:[],z:[]};waveBuf={x:[],y:[],z:[]};
+  document.getElementById('live-controls-off').style.display='none';
+  document.getElementById('live-controls-on').style.display='block';
+  setLiveStatus('Listening…','listening');
+  motionHandler=function(e){
+    if(!running)return;
+    const a=e.accelerationIncludingGravity||e.acceleration||{};
+    const rr=e.rotationRate||{};
+    const ax=a.x||0,ay=a.y||0,az=a.z||0,gx=rr.alpha||0,gy=rr.beta||0,gz=rr.gamma||0;
+    accBuf.x.push(ax);accBuf.y.push(ay);accBuf.z.push(az);
+    gyroBuf.x.push(gx);gyroBuf.y.push(gy);gyroBuf.z.push(gz);
+    waveBuf.x.push(ax);waveBuf.y.push(ay);waveBuf.z.push(az);
+    if(accBuf.x.length>WINDOW_SIZE){accBuf.x.shift();accBuf.y.shift();accBuf.z.shift();}
+    if(gyroBuf.x.length>WINDOW_SIZE){gyroBuf.x.shift();gyroBuf.y.shift();gyroBuf.z.shift();}
+    if(waveBuf.x.length>160){waveBuf.x.shift();waveBuf.y.shift();waveBuf.z.shift();}
+    document.getElementById('sg-ax').textContent=ax.toFixed(2);
+    document.getElementById('sg-ay').textContent=ay.toFixed(2);
+    document.getElementById('sg-az').textContent=az.toFixed(2);
+    document.getElementById('sg-gx').textContent=gx.toFixed(2);
+    document.getElementById('sg-gy').textContent=gy.toFixed(2);
+    document.getElementById('sg-gz').textContent=gz.toFixed(2);
+    sampleCount++;predTimer++;
+    document.getElementById('live-sample-ct').textContent=sampleCount+' samples';
+    const filled=accBuf.x.length>=WINDOW_SIZE;
+    const wb=document.getElementById('live-win-badge');
+    wb.textContent=filled?'Window ready':accBuf.x.length+'/'+WINDOW_SIZE+' filling…';
+    wb.style.color=filled?'var(--ok)':'var(--muted)';
+    drawWave();
+    if(filled&&predTimer>=PREDICT_EVERY){predTimer=0;livePredictNow();}
   };
-  Object.entries(sample).forEach(([k,v]) => { const el = document.getElementById(k); if(el) el.value = v; });
+  window.addEventListener('devicemotion',motionHandler);
 }
 
-function clearForm() {
-  ['acc_max','gyro_max','lin_max','acc_kurtosis','gyro_kurtosis','acc_skewness','gyro_skewness','post_gyro_max','post_lin_max']
-    .forEach(k => { const el = document.getElementById(k); if(el) el.value = ''; });
-  document.getElementById('result-box').className = 'result-box';
-  document.getElementById('result-box').innerHTML = '<div class="empty-state">Enter sensor data<br/>and click Predict</div>';
-  document.getElementById('prob-card').style.display = 'none';
+function stopSensors(){
+  running=false;
+  if(motionHandler)window.removeEventListener('devicemotion',motionHandler);
+  document.getElementById('live-controls-off').style.display='block';
+  document.getElementById('live-controls-on').style.display='none';
+  setLiveStatus('Idle','idle');
 }
-
-async function predict() {
-  clearAlert('single-alert');
-  const fields = ['acc_max','gyro_max','lin_max','acc_kurtosis','gyro_kurtosis','acc_skewness','gyro_skewness','post_gyro_max','post_lin_max'];
-  const data = {};
-  for (const f of fields) {
-    const v = document.getElementById(f).value;
-    if (v === '') { showAlert('single-alert', `Field "${f}" is required.`); return; }
-    data[f] = parseFloat(v);
-  }
-  const btn = document.querySelector('.btn-primary');
-  btn.disabled = true;
-  document.getElementById('btn-spinner').innerHTML = '<span class="spinner"></span>';
-  try {
-    const res = await fetch(`${API}/predict`, {
-      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    if (json.error) { showAlert('single-alert', json.error); return; }
-    showResult(json);
-  } catch(e) {
-    showAlert('single-alert', 'Cannot connect to backend. Make sure Flask is running on port 5000.');
-  } finally {
-    btn.disabled = false;
-    document.getElementById('btn-spinner').innerHTML = '';
-  }
-}
-
-function showResult(json) {
-  const box = document.getElementById('result-box');
-  box.className = 'result-box ' + json.category;
-  const catLabel = json.category === 'fall' ? '⚠️ FALL DETECTED' : json.category === 'stumble' ? '⚡ STUMBLE' : '✅ NORMAL';
-  box.innerHTML = `
-    <div class="result-label ${json.category}">${json.label}</div>
-    <div class="result-name">${json.name}</div>
-    <div class="result-conf" style="font-size:0.85rem; color:var(--muted);">${catLabel}</div>
-    <div class="result-conf">${json.confidence}% confidence</div>
-  `;
-  const probCard = document.getElementById('prob-card');
-  const probList = document.getElementById('prob-list');
-  probCard.style.display = 'block';
-  probList.innerHTML = json.top5.map(item => `
-    <div class="prob-item">
-      <span class="prob-lbl">${item.label}</span>
-      <div class="prob-bar-wrap"><div class="prob-bar" style="width:${item.prob}%"></div></div>
-      <span class="prob-val">${item.prob}%</span>
-    </div>
-  `).join('');
-}
-
-async function uploadCSV(input) {
-  const file = input.files[0];
-  if (!file) return;
-  clearAlert('csv-alert');
-  document.getElementById('csv-results').innerHTML = '<div style="padding:20px; text-align:center;"><span class="spinner"></span></div>';
-  const fd = new FormData();
-  fd.append('file', file);
-  try {
-    const res = await fetch(`${API}/predict-csv`, { method:'POST', body: fd });
-    const json = await res.json();
-    if (json.error) { showAlert('csv-alert', json.error); document.getElementById('csv-results').innerHTML = ''; return; }
-    renderCSVResults(json);
-  } catch(e) {
-    showAlert('csv-alert', 'Cannot connect to backend. Make sure Flask is running on port 5000.');
-    document.getElementById('csv-results').innerHTML = '';
-  }
-}
-
-function renderCSVResults(json) {
-  const s = json.summary;
-  const chips = ['fall','stumble','normal'].map(c =>
-    `<div class="chip ${c}"><span class="num">${s[c]||0}</span> ${c}</div>`
-  ).join('');
-  const rows = json.results.slice(0, 100).map(r => `
-    <tr>
-      <td>${r.row}</td>
-      <td style="color:var(--accent); font-family:var(--mono);">${r.label}</td>
-      <td>${r.name}</td>
-      <td><span class="badge ${r.category}">${r.category.toUpperCase()}</span></td>
-    </tr>
-  `).join('');
-  document.getElementById('csv-results').innerHTML = `
-    <div style="margin-top:20px;">
-      <div style="font-family:var(--mono); font-size:0.75rem; color:var(--muted); margin-bottom:8px;">
-        ${json.total} predictions — ${json.results.length > 100 ? 'showing first 100' : 'all shown'}
-      </div>
-      <div class="summary-chips">${chips}</div>
-      <div class="result-table-wrap">
-        <table>
-          <thead><tr><th>#</th><th>Label</th><th>Activity</th><th>Category</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
-async function loadStats() {
-  try {
-    const res = await fetch(`${API}/stats`);
-    const json = await res.json();
-    if (json.error) { document.getElementById('stats-content').innerHTML = `<div class="alert alert-error">${json.error}</div>`; return; }
-    renderStats(json);
-  } catch(e) {
-    document.getElementById('stats-content').innerHTML = `<div style="text-align:center; padding:60px; color:var(--muted); font-family:var(--mono); font-size:0.8rem;">Cannot connect to backend.</div>`;
-  }
-}
-
-function renderStats(json) {
-  const dist = json.label_distribution;
-  const maxCount = Math.max(...Object.values(dist).map(d => d.count));
-  const catColors = { fall: 'var(--accent2)', stumble: 'var(--warn)', normal: 'var(--ok)', unknown: 'var(--muted)' };
-  const distRows = Object.entries(dist).sort((a,b) => b[1].count - a[1].count).map(([code, d]) => {
-    const pct = Math.round((d.count / maxCount) * 100);
-    const color = catColors[d.category] || 'var(--muted)';
-    return `
-      <div class="dist-item">
-        <span class="dist-code">${code}</span>
-        <span class="dist-name">${d.name}</span>
-        <div class="dist-bar-wrap"><div class="dist-bar" style="width:${pct}%; background:${color}"></div></div>
-        <span class="dist-count">${d.count}</span>
-      </div>`;
-  }).join('');
-  const fallCount = Object.entries(dist).filter(([,d])=>d.category==='fall').reduce((s,[,d])=>s+d.count,0);
-  const normalCount = Object.entries(dist).filter(([,d])=>d.category==='normal').reduce((s,[,d])=>s+d.count,0);
-  document.getElementById('stats-content').innerHTML = `
-    <div class="grid-3" style="margin-bottom:24px;">
-      <div class="stat-card"><div class="stat-num">${json.total_samples.toLocaleString()}</div><div class="stat-lbl">Total Samples</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--accent2)">${json.fall_percentage}%</div><div class="stat-lbl">Fall Events</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--ok)">${Object.keys(dist).length}</div><div class="stat-lbl">Activity Classes</div></div>
-    </div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Label Distribution</div>
-        ${distRows}
-      </div>
-      <div class="card">
-        <div class="card-title">Feature Columns</div>
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
-          ${json.features.map(f=>`<div style="font-family:var(--mono); font-size:0.8rem; padding:8px 12px; background:var(--bg); border-radius:6px; border:1px solid var(--border); color:var(--accent);">${f}</div>`).join('')}
-        </div>
-        <div class="card-title">Category Summary</div>
-        <div class="dist-item"><span style="font-family:var(--mono);font-size:.8rem;color:var(--accent2);flex:1;">Fall events</span><span style="font-family:var(--mono);font-size:.8rem;">${fallCount}</span></div>
-        <div class="dist-item"><span style="font-family:var(--mono);font-size:.8rem;color:var(--ok);flex:1;">Normal activity</span><span style="font-family:var(--mono);font-size:.8rem;">${normalCount}</span></div>
-      </div>
-    </div>
-  `;
-}
-
-// Drag & drop
-const dz = document.getElementById('drop-zone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
-dz.addEventListener('drop', e => {
-  e.preventDefault(); dz.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file) { document.getElementById('csv-file').files = e.dataTransfer.files; uploadCSV({files: e.dataTransfer.files}); }
-});
 </script>
 </body>
 </html>
