@@ -8,12 +8,9 @@ import traceback
 app = Flask(__name__, static_folder="static")
 CORS(app)
 
-# Load model and encoder
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
-ENCODER_PATH = os.path.join(os.path.dirname(__file__), "label_encoder.pkl")
-
-model = joblib.load(MODEL_PATH)
-le = joblib.load(ENCODER_PATH)
+BASE  = os.path.dirname(os.path.abspath(__file__))
+model = joblib.load(os.path.join(BASE, "model.pkl"))
+le    = joblib.load(os.path.join(BASE, "label_encoder.pkl"))
 
 FEATURE_COLS = [
     "acc_max", "gyro_max", "acc_kurtosis", "gyro_kurtosis",
@@ -21,41 +18,43 @@ FEATURE_COLS = [
 ]
 
 LABEL_MAP = {
-    "FOL": {"name": "Forward Fall", "category": "fall", "icon": "⚠️"},
-    "FKL": {"name": "Fall Kneel", "category": "fall", "icon": "⚠️"},
-    "SDL": {"name": "Sideways Fall", "category": "fall", "icon": "⚠️"},
-    "BSC": {"name": "Back Fall", "category": "fall", "icon": "⚠️"},
-    "STU": {"name": "Stumble", "category": "stumble", "icon": "⚡"},
-    "WAL": {"name": "Walking", "category": "normal", "icon": "✅"},
-    "JOG": {"name": "Jogging", "category": "normal", "icon": "✅"},
-    "STD": {"name": "Standing", "category": "normal", "icon": "✅"},
-    "STN": {"name": "Standing Still", "category": "normal", "icon": "✅"},
-    "JUM": {"name": "Jumping", "category": "normal", "icon": "✅"},
-    "CSI": {"name": "Chair Sit-In", "category": "normal", "icon": "✅"},
-    "CSO": {"name": "Chair Sit-Out", "category": "normal", "icon": "✅"},
-    "SCH": {"name": "Sit Chair", "category": "normal", "icon": "✅"},
+    "FOL": {"name": "Forward Fall",   "category": "fall"},
+    "FKL": {"name": "Fall Kneel",     "category": "fall"},
+    "SDL": {"name": "Sideways Fall",  "category": "fall"},
+    "BSC": {"name": "Back Fall",      "category": "fall"},
+    "STU": {"name": "Stumble",        "category": "stumble"},
+    "WAL": {"name": "Walking",        "category": "normal"},
+    "JOG": {"name": "Jogging",        "category": "normal"},
+    "STD": {"name": "Standing",       "category": "normal"},
+    "STN": {"name": "Standing Still", "category": "normal"},
+    "JUM": {"name": "Jumping",        "category": "normal"},
+    "CSI": {"name": "Chair Sit-In",   "category": "normal"},
+    "CSO": {"name": "Chair Sit-Out",  "category": "normal"},
+    "SCH": {"name": "Sit Chair",      "category": "normal"},
 }
 
 
 @app.route("/api/predict", methods=["POST"])
 def predict():
     try:
-        data = request.get_json()
+        data     = request.get_json(force=True)
         features = {col: float(data.get(col, 0)) for col in FEATURE_COLS}
-        df = pd.DataFrame([features])
-        pred = model.predict(df)[0]
-        proba = model.predict_proba(df)[0]
-        label = le.inverse_transform([pred])[0]
-        classes = le.inverse_transform(list(range(len(proba))))
-        top = sorted(zip(classes, proba), key=lambda x: -x[1])[:5]
-        meta = LABEL_MAP.get(label, {"name": label, "category": "unknown", "icon": "❓"})
+        df       = pd.DataFrame([features])
+        pred     = model.predict(df)[0]
+        proba    = model.predict_proba(df)[0]
+        label    = le.inverse_transform([pred])[0]
+        classes  = le.inverse_transform(list(range(len(proba))))
+        top5     = sorted(zip(classes, proba), key=lambda x: -x[1])[:5]
+        meta     = LABEL_MAP.get(label, {"name": label, "category": "unknown"})
         return jsonify({
-            "label": label,
-            "name": meta["name"],
-            "category": meta["category"],
-            "icon": meta["icon"],
+            "label":      label,
+            "name":       meta["name"],
+            "category":   meta["category"],
             "confidence": round(float(max(proba)) * 100, 1),
-            "top5": [{"label": l, "name": LABEL_MAP.get(l, {}).get("name", l), "prob": round(float(p)*100,1)} for l,p in top]
+            "top5": [
+                {"label": l, "name": LABEL_MAP.get(l, {}).get("name", l), "prob": round(float(p) * 100, 1)}
+                for l, p in top5
+            ]
         })
     except Exception as e:
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
@@ -66,26 +65,18 @@ def predict_csv():
     try:
         if "file" not in request.files:
             return jsonify({"error": "No file uploaded"}), 400
-        f = request.files["file"]
-        df = pd.read_csv(f)
-        df = df.drop(columns=["Unnamed: 0", "label", "fall"], errors="ignore")
+        df      = pd.read_csv(request.files["file"])
+        df      = df.drop(columns=["Unnamed: 0", "label", "fall"], errors="ignore")
         missing = [c for c in FEATURE_COLS if c not in df.columns]
         if missing:
             return jsonify({"error": f"Missing columns: {missing}"}), 400
-        preds = model.predict(df[FEATURE_COLS])
-        labels = le.inverse_transform(preds)
-        results = []
-        for i, (label, row) in enumerate(zip(labels, df.itertuples())):
-            meta = LABEL_MAP.get(label, {"name": label, "category": "unknown", "icon": "❓"})
-            results.append({
-                "row": i + 1,
-                "label": label,
-                "name": meta["name"],
-                "category": meta["category"],
-            })
-        counts = {}
-        for r in results:
-            counts[r["category"]] = counts.get(r["category"], 0) + 1
+        preds   = model.predict(df[FEATURE_COLS])
+        labels  = le.inverse_transform(preds)
+        results, counts = [], {}
+        for i, label in enumerate(labels):
+            meta = LABEL_MAP.get(label, {"name": label, "category": "unknown"})
+            results.append({"row": i + 1, "label": label, "name": meta["name"], "category": meta["category"]})
+            counts[meta["category"]] = counts.get(meta["category"], 0) + 1
         return jsonify({"total": len(results), "results": results, "summary": counts})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -94,18 +85,21 @@ def predict_csv():
 @app.route("/api/stats", methods=["GET"])
 def stats():
     try:
-        df = pd.read_csv("/home/claude/Train.csv")
+        train_path = os.path.join(BASE, "Train.csv")
+        if not os.path.exists(train_path):
+            return jsonify({"error": "Train.csv not found"}), 404
+        df           = pd.read_csv(train_path)
         label_counts = df["label"].value_counts().to_dict()
-        fall_pct = round(df["fall"].mean() * 100, 1)
-        enriched = {}
-        for k, v in label_counts.items():
-            meta = LABEL_MAP.get(k, {"name": k, "category": "unknown"})
-            enriched[k] = {"count": v, "name": meta["name"], "category": meta["category"]}
+        enriched     = {
+            k: {"count": v, "name": LABEL_MAP.get(k, {}).get("name", k),
+                "category": LABEL_MAP.get(k, {}).get("category", "unknown")}
+            for k, v in label_counts.items()
+        }
         return jsonify({
-            "total_samples": len(df),
-            "fall_percentage": fall_pct,
+            "total_samples":      len(df),
+            "fall_percentage":    round(df["fall"].mean() * 100, 1),
             "label_distribution": enriched,
-            "features": FEATURE_COLS
+            "features":           FEATURE_COLS,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -120,4 +114,4 @@ def serve(path):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)
