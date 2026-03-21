@@ -1,34 +1,40 @@
 # FallGuard — Motion Intelligence System
 
-A full-stack fall detection web app powered by your trained Random Forest model.
+A full-stack fall detection web app. The Flask backend serves predictions from your trained Random Forest model. The frontend reads live mobile sensor data and classifies activity in real time.
 
-## Project Structure
+---
+
+## Repository Structure
 
 ```
 fallguard/
-├── app.py              ← Flask backend (REST API)
-├── model.pkl           ← Trained RandomForest model
-├── label_encoder.pkl   ← Label encoder
-├── Train.csv           ← Training dataset (for stats)
-├── requirements.txt    ← Python dependencies
-└── static/
-    └── index.html      ← Frontend (single-page app)
+├── app.py                  ← Flask backend (REST API + static file server)
+├── model.pkl               ← Trained RandomForest model  (add yourself)
+├── label_encoder.pkl       ← LabelEncoder               (add yourself)
+├── Train.csv               ← Training dataset            (add yourself)
+├── requirements.txt        ← Python dependencies
+├── static/
+│   └── index.html          ← Full frontend (4 tabs: Live Sensor, Manual, CSV, Stats)
+└── README.md
 ```
 
-## Setup & Run
+> **Note:** `model.pkl`, `label_encoder.pkl`, and `Train.csv` are not committed to git (add them to `.gitignore`). Copy them into the project folder before running.
 
-### 1. Install dependencies
+---
+
+## Quick Start
+
+### 1. Clone and install
 
 ```bash
+git clone https://github.com/YOUR_USERNAME/fallguard.git
+cd fallguard
 pip install -r requirements.txt
 ```
 
-### 2. Place your model files
+### 2. Add your model files
 
-Make sure these are in the same folder as `app.py`:
-- `model.pkl`
-- `label_encoder.pkl`
-- `Train.csv`
+Copy `model.pkl`, `label_encoder.pkl`, and `Train.csv` into the project root.
 
 ### 3. Run the server
 
@@ -36,16 +42,35 @@ Make sure these are in the same folder as `app.py`:
 python app.py
 ```
 
-The app will be available at: **http://localhost:5000**
+Server starts at **http://localhost:5000**
+
+To allow phones on your local network to connect:
+
+```bash
+python app.py --host 0.0.0.0 --port 5000
+```
+
+Then open `http://YOUR_LOCAL_IP:5000` on your phone (e.g. `http://192.168.1.5:5000`).
+
+---
+
+## Frontend Tabs
+
+| Tab | Description |
+|-----|-------------|
+| **Live Sensor** | Reads phone accelerometer + gyroscope via `DeviceMotionEvent`. Computes 9 features from a 50-sample rolling window and predicts every ~2.5 sec. |
+| **Manual Input** | Slider-based input for all 9 features. Good for testing specific values. |
+| **CSV Upload** | Batch prediction — upload a Test.csv and get a full results table. |
+| **Dataset Stats** | Training data label distribution and feature list pulled from the backend. |
 
 ---
 
 ## API Endpoints
 
 ### `POST /api/predict`
-Predict from a single set of sensor features.
+Single prediction from JSON sensor features.
 
-**Request body (JSON):**
+**Request:**
 ```json
 {
   "acc_max": 26.04,
@@ -67,28 +92,38 @@ Predict from a single set of sensor features.
   "name": "Forward Fall",
   "category": "fall",
   "confidence": 87.5,
-  "top5": [...]
+  "top5": [{"label": "FOL", "name": "Forward Fall", "prob": 87.5}, ...]
 }
 ```
 
----
-
 ### `POST /api/predict-csv`
-Upload a CSV file and get batch predictions.
-
-**Form field:** `file` (multipart/form-data)
-
----
+Batch prediction. Send a multipart form with field `file` containing your CSV.
 
 ### `GET /api/stats`
 Returns training dataset statistics and label distribution.
 
 ---
 
+## How Live Sensor Detection Works
+
+1. Browser requests `DeviceMotionEvent` permission (required on iOS 13+)
+2. Raw accelerometer (X, Y, Z) and gyroscope (alpha, beta, gamma) stream in at ~60 Hz
+3. A rolling buffer of 50 samples is maintained
+4. Every 25 new samples (~2.5 sec), 9 statistical features are computed:
+   - **acc_max** — peak resultant acceleration magnitude
+   - **gyro_max** — peak resultant gyroscope magnitude
+   - **lin_max** — peak linear acceleration (gravity subtracted)
+   - **acc_kurtosis / gyro_kurtosis** — distribution peakedness (high in falls)
+   - **acc_skewness / gyro_skewness** — distribution asymmetry
+   - **post_gyro_max / post_lin_max** — second-half window peaks (post-fall stillness)
+5. Features are POST'd to `/api/predict`, result displayed instantly
+
+---
+
 ## Activity Labels
 
-| Code | Name | Category |
-|------|------|----------|
+| Code | Activity | Category |
+|------|----------|----------|
 | FOL | Forward Fall | fall |
 | FKL | Fall Kneel | fall |
 | SDL | Sideways Fall | fall |
@@ -97,8 +132,38 @@ Returns training dataset statistics and label distribution.
 | WAL | Walking | normal |
 | JOG | Jogging | normal |
 | STD | Standing | normal |
+| STN | Standing Still | normal |
 | JUM | Jumping | normal |
 | CSI | Chair Sit-In | normal |
 | CSO | Chair Sit-Out | normal |
-| STN | Standing Still | normal |
 | SCH | Sit Chair | normal |
+
+---
+
+## Requirements
+
+```
+flask
+flask-cors
+pandas
+scikit-learn
+joblib
+```
+
+Install with: `pip install -r requirements.txt`
+
+---
+
+## .gitignore
+
+```
+model.pkl
+label_encoder.pkl
+Train.csv
+Test.csv
+output.csv
+__pycache__/
+*.pyc
+.env
+venv/
+```
