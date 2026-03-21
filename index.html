@@ -1,71 +1,627 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Fall Detection</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { text-align: center; font-family: Arial; }
-        h1 { color: #333; }
-        #result { font-size: 30px; margin-top: 20px; }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FallGuard — Motion Intelligence System</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #090c10;
+    --surface: #0e1420;
+    --surface2: #141c2b;
+    --border: #1e2d45;
+    --accent: #00e5ff;
+    --accent2: #ff3d6b;
+    --warn: #ffb800;
+    --ok: #00e676;
+    --text: #e0eaf8;
+    --muted: #4a6080;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 36px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), #0066ff);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 0 24px rgba(0,229,255,0.3);
+  }
+  .logo-text h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+  .logo-text span { font-size: 0.75rem; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 2px; }
+  .status-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(0,230,118,0.08);
+    border: 1px solid rgba(0,230,118,0.2);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--ok);
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--ok);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(0,230,118,0.4); } 50% { opacity:0.8; box-shadow: 0 0 0 6px rgba(0,230,118,0); } }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 32px;
+    width: fit-content;
+  }
+  .tab {
+    padding: 10px 24px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+
+  /* Panels */
+  .panel { display: none; animation: fadeIn 0.3s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .card-title {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  /* Grid layout */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .col-span-2 { grid-column: span 2; }
+
+  /* Form */
+  .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .field label {
+    display: block;
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .field input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,0.08); }
+  .field input::placeholder { color: var(--muted); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: 0 0 20px rgba(0,229,255,0.2);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(0,229,255,0.35); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Result display */
+  .result-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.3s;
+  }
+  .result-box.fall { border-color: var(--accent2); box-shadow: 0 0 30px rgba(255,61,107,0.1); }
+  .result-box.stumble { border-color: var(--warn); box-shadow: 0 0 30px rgba(255,184,0,0.1); }
+  .result-box.normal { border-color: var(--ok); box-shadow: 0 0 30px rgba(0,230,118,0.1); }
+
+  .result-label {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+  }
+  .result-label.fall { color: var(--accent2); }
+  .result-label.stumble { color: var(--warn); }
+  .result-label.normal { color: var(--ok); }
+
+  .result-name {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .result-conf {
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: var(--text);
+  }
+  .empty-state { color: var(--muted); font-family: var(--mono); font-size: 0.8rem; text-align: center; }
+
+  /* Probability bars */
+  .prob-list { display: flex; flex-direction: column; gap: 10px; }
+  .prob-item { display: flex; align-items: center; gap: 12px; }
+  .prob-lbl { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); width: 40px; flex-shrink: 0; }
+  .prob-bar-wrap { flex: 1; background: var(--bg); border-radius: 4px; height: 6px; overflow: hidden; }
+  .prob-bar { height: 100%; border-radius: 4px; background: var(--accent); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+  .prob-val { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); width: 40px; text-align: right; flex-shrink: 0; }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 48px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.03);
+  }
+  .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
+  .upload-text { color: var(--muted); font-family: var(--mono); font-size: 0.8rem; }
+  .upload-text strong { color: var(--accent); }
+
+  /* CSV results table */
+  .result-table-wrap { overflow-x: auto; margin-top: 20px; }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.78rem; }
+  th { background: var(--bg); color: var(--muted); text-transform: uppercase; letter-spacing: 1px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(30,45,69,0.5); }
+  tr:hover td { background: rgba(0,229,255,0.03); }
+  .badge {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 20px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .badge.fall { background: rgba(255,61,107,0.15); color: var(--accent2); border: 1px solid rgba(255,61,107,0.3); }
+  .badge.stumble { background: rgba(255,184,0,0.12); color: var(--warn); border: 1px solid rgba(255,184,0,0.3); }
+  .badge.normal { background: rgba(0,230,118,0.1); color: var(--ok); border: 1px solid rgba(0,230,118,0.25); }
+
+  /* Stats */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+  .stat-lbl { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+
+  .dist-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .dist-item:last-child { border: none; }
+  .dist-code { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); width: 40px; }
+  .dist-name { font-size: 0.85rem; flex: 1; }
+  .dist-bar-wrap { width: 100px; background: var(--bg); border-radius: 4px; height: 4px; }
+  .dist-bar { height: 100%; border-radius: 4px; }
+  .dist-count { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); width: 40px; text-align: right; }
+
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid rgba(0,229,255,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    margin-bottom: 16px;
+  }
+  .alert-error { background: rgba(255,61,107,0.1); border: 1px solid rgba(255,61,107,0.3); color: var(--accent2); }
+  .alert-success { background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.25); color: var(--ok); }
+
+  .summary-chips { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .chip {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chip .num { font-weight: 700; font-size: 1rem; }
+  .chip.fall { background: rgba(255,61,107,0.12); color: var(--accent2); border: 1px solid rgba(255,61,107,0.2); }
+  .chip.stumble { background: rgba(255,184,0,0.1); color: var(--warn); border: 1px solid rgba(255,184,0,0.2); }
+  .chip.normal { background: rgba(0,230,118,0.08); color: var(--ok); border: 1px solid rgba(0,230,118,0.2); }
+
+  @media (max-width: 768px) {
+    .grid-2, .form-grid { grid-template-columns: 1fr; }
+    .col-span-2 { grid-column: auto; }
+    .grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
+<div class="container">
 
-<h1>📱 Fall Detection</h1>
-<button onclick="start()">Start Detection</button>
-<div id="result">Waiting...</div>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🛡️</div>
+      <div class="logo-text">
+        <h1>FallGuard</h1>
+        <span>Motion Intelligence System</span>
+      </div>
+    </div>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      Model Online
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('single')">Manual Input</button>
+    <button class="tab" onclick="switchTab('csv')">CSV Upload</button>
+    <button class="tab" onclick="switchTab('stats')">Dataset Stats</button>
+  </div>
+
+  <!-- PANEL: Single Prediction -->
+  <div id="panel-single" class="panel active">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Sensor Features</div>
+        <div id="single-alert"></div>
+        <div class="form-grid">
+          <div class="field"><label>acc_max</label><input type="number" id="acc_max" placeholder="e.g. 26.04" step="0.001"/></div>
+          <div class="field"><label>gyro_max</label><input type="number" id="gyro_max" placeholder="e.g. 7.31" step="0.001"/></div>
+          <div class="field"><label>lin_max</label><input type="number" id="lin_max" placeholder="e.g. 11.13" step="0.001"/></div>
+          <div class="field"><label>acc_kurtosis</label><input type="number" id="acc_kurtosis" placeholder="e.g. 20.38" step="0.001"/></div>
+          <div class="field"><label>gyro_kurtosis</label><input type="number" id="gyro_kurtosis" placeholder="e.g. 2.78" step="0.001"/></div>
+          <div class="field"><label>acc_skewness</label><input type="number" id="acc_skewness" placeholder="e.g. 3.89" step="0.001"/></div>
+          <div class="field"><label>gyro_skewness</label><input type="number" id="gyro_skewness" placeholder="e.g. 1.59" step="0.001"/></div>
+          <div class="field"><label>post_gyro_max</label><input type="number" id="post_gyro_max" placeholder="e.g. 7.09" step="0.001"/></div>
+          <div class="field"><label>post_lin_max</label><input type="number" id="post_lin_max" placeholder="e.g. 10.79" step="0.001"/></div>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="predict()"><span id="btn-spinner"></span> Predict</button>
+          <button class="btn btn-secondary" onclick="fillSample()">Load Sample</button>
+          <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <div class="card">
+          <div class="card-title">Prediction Result</div>
+          <div class="result-box" id="result-box">
+            <div class="empty-state">Enter sensor data<br/>and click Predict</div>
+          </div>
+        </div>
+        <div class="card" id="prob-card" style="display:none;">
+          <div class="card-title">Top Probabilities</div>
+          <div class="prob-list" id="prob-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: CSV -->
+  <div id="panel-csv" class="panel">
+    <div class="card">
+      <div class="card-title">Batch Prediction — CSV Upload</div>
+      <div id="csv-alert"></div>
+      <div class="upload-zone" id="drop-zone" onclick="document.getElementById('csv-file').click()">
+        <div class="upload-icon">📂</div>
+        <div class="upload-text"><strong>Click to upload</strong> or drag & drop</div>
+        <div class="upload-text" style="margin-top:6px;">Accepts .csv with sensor columns</div>
+      </div>
+      <input type="file" id="csv-file" accept=".csv" style="display:none;" onchange="uploadCSV(this)"/>
+      <div id="csv-results"></div>
+    </div>
+  </div>
+
+  <!-- PANEL: Stats -->
+  <div id="panel-stats" class="panel">
+    <div id="stats-content">
+      <div style="text-align:center; padding:60px; color:var(--muted); font-family:var(--mono); font-size:0.8rem;">
+        Loading dataset statistics...
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <script>
-let buffer = [];
+const API = "http://localhost:5000/api";
 
-function start() {
-    if (typeof DeviceMotionEvent.requestPermission === "function") {
-        DeviceMotionEvent.requestPermission().then(response => {
-            if (response === "granted") {
-                window.addEventListener("devicemotion", handleMotion);
-            }
-        });
-    } else {
-        window.addEventListener("devicemotion", handleMotion);
-    }
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'stats') loadStats();
 }
 
-function handleMotion(event) {
-    let acc = event.accelerationIncludingGravity;
-    let gyro = event.rotationRate;
+function showAlert(container, msg, type='error') {
+  document.getElementById(container).innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+}
+function clearAlert(container) { document.getElementById(container).innerHTML = ''; }
 
-    if (!acc || !gyro) return;
-
-    let dataPoint = [
-        acc.x || 0,
-        acc.y || 0,
-        acc.z || 0,
-        gyro.alpha || 0,
-        gyro.beta || 0,
-        gyro.gamma || 0
-    ];
-
-    buffer.push(dataPoint);
-
-    if (buffer.length >= 50) {
-        sendData(buffer.slice(-50));
-    }
+function fillSample() {
+  const sample = {
+    acc_max: 26.04, gyro_max: 7.31, acc_kurtosis: 20.38, gyro_kurtosis: 2.78,
+    lin_max: 11.13, acc_skewness: 3.89, gyro_skewness: 1.59, post_gyro_max: 7.09, post_lin_max: 10.79
+  };
+  Object.entries(sample).forEach(([k,v]) => { const el = document.getElementById(k); if(el) el.value = v; });
 }
 
-function sendData(windowData) {
-    fetch("http://YOUR_IP:5000/predict", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ data: windowData })
-    })
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("result").innerText = data.prediction;
+function clearForm() {
+  ['acc_max','gyro_max','lin_max','acc_kurtosis','gyro_kurtosis','acc_skewness','gyro_skewness','post_gyro_max','post_lin_max']
+    .forEach(k => { const el = document.getElementById(k); if(el) el.value = ''; });
+  document.getElementById('result-box').className = 'result-box';
+  document.getElementById('result-box').innerHTML = '<div class="empty-state">Enter sensor data<br/>and click Predict</div>';
+  document.getElementById('prob-card').style.display = 'none';
+}
+
+async function predict() {
+  clearAlert('single-alert');
+  const fields = ['acc_max','gyro_max','lin_max','acc_kurtosis','gyro_kurtosis','acc_skewness','gyro_skewness','post_gyro_max','post_lin_max'];
+  const data = {};
+  for (const f of fields) {
+    const v = document.getElementById(f).value;
+    if (v === '') { showAlert('single-alert', `Field "${f}" is required.`); return; }
+    data[f] = parseFloat(v);
+  }
+  const btn = document.querySelector('.btn-primary');
+  btn.disabled = true;
+  document.getElementById('btn-spinner').innerHTML = '<span class="spinner"></span>';
+  try {
+    const res = await fetch(`${API}/predict`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
     });
+    const json = await res.json();
+    if (json.error) { showAlert('single-alert', json.error); return; }
+    showResult(json);
+  } catch(e) {
+    showAlert('single-alert', 'Cannot connect to backend. Make sure Flask is running on port 5000.');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('btn-spinner').innerHTML = '';
+  }
 }
-</script>
 
+function showResult(json) {
+  const box = document.getElementById('result-box');
+  box.className = 'result-box ' + json.category;
+  const catLabel = json.category === 'fall' ? '⚠️ FALL DETECTED' : json.category === 'stumble' ? '⚡ STUMBLE' : '✅ NORMAL';
+  box.innerHTML = `
+    <div class="result-label ${json.category}">${json.label}</div>
+    <div class="result-name">${json.name}</div>
+    <div class="result-conf" style="font-size:0.85rem; color:var(--muted);">${catLabel}</div>
+    <div class="result-conf">${json.confidence}% confidence</div>
+  `;
+  const probCard = document.getElementById('prob-card');
+  const probList = document.getElementById('prob-list');
+  probCard.style.display = 'block';
+  probList.innerHTML = json.top5.map(item => `
+    <div class="prob-item">
+      <span class="prob-lbl">${item.label}</span>
+      <div class="prob-bar-wrap"><div class="prob-bar" style="width:${item.prob}%"></div></div>
+      <span class="prob-val">${item.prob}%</span>
+    </div>
+  `).join('');
+}
+
+async function uploadCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  clearAlert('csv-alert');
+  document.getElementById('csv-results').innerHTML = '<div style="padding:20px; text-align:center;"><span class="spinner"></span></div>';
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const res = await fetch(`${API}/predict-csv`, { method:'POST', body: fd });
+    const json = await res.json();
+    if (json.error) { showAlert('csv-alert', json.error); document.getElementById('csv-results').innerHTML = ''; return; }
+    renderCSVResults(json);
+  } catch(e) {
+    showAlert('csv-alert', 'Cannot connect to backend. Make sure Flask is running on port 5000.');
+    document.getElementById('csv-results').innerHTML = '';
+  }
+}
+
+function renderCSVResults(json) {
+  const s = json.summary;
+  const chips = ['fall','stumble','normal'].map(c =>
+    `<div class="chip ${c}"><span class="num">${s[c]||0}</span> ${c}</div>`
+  ).join('');
+  const rows = json.results.slice(0, 100).map(r => `
+    <tr>
+      <td>${r.row}</td>
+      <td style="color:var(--accent); font-family:var(--mono);">${r.label}</td>
+      <td>${r.name}</td>
+      <td><span class="badge ${r.category}">${r.category.toUpperCase()}</span></td>
+    </tr>
+  `).join('');
+  document.getElementById('csv-results').innerHTML = `
+    <div style="margin-top:20px;">
+      <div style="font-family:var(--mono); font-size:0.75rem; color:var(--muted); margin-bottom:8px;">
+        ${json.total} predictions — ${json.results.length > 100 ? 'showing first 100' : 'all shown'}
+      </div>
+      <div class="summary-chips">${chips}</div>
+      <div class="result-table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Label</th><th>Activity</th><th>Category</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch(`${API}/stats`);
+    const json = await res.json();
+    if (json.error) { document.getElementById('stats-content').innerHTML = `<div class="alert alert-error">${json.error}</div>`; return; }
+    renderStats(json);
+  } catch(e) {
+    document.getElementById('stats-content').innerHTML = `<div style="text-align:center; padding:60px; color:var(--muted); font-family:var(--mono); font-size:0.8rem;">Cannot connect to backend.</div>`;
+  }
+}
+
+function renderStats(json) {
+  const dist = json.label_distribution;
+  const maxCount = Math.max(...Object.values(dist).map(d => d.count));
+  const catColors = { fall: 'var(--accent2)', stumble: 'var(--warn)', normal: 'var(--ok)', unknown: 'var(--muted)' };
+  const distRows = Object.entries(dist).sort((a,b) => b[1].count - a[1].count).map(([code, d]) => {
+    const pct = Math.round((d.count / maxCount) * 100);
+    const color = catColors[d.category] || 'var(--muted)';
+    return `
+      <div class="dist-item">
+        <span class="dist-code">${code}</span>
+        <span class="dist-name">${d.name}</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="width:${pct}%; background:${color}"></div></div>
+        <span class="dist-count">${d.count}</span>
+      </div>`;
+  }).join('');
+  const fallCount = Object.entries(dist).filter(([,d])=>d.category==='fall').reduce((s,[,d])=>s+d.count,0);
+  const normalCount = Object.entries(dist).filter(([,d])=>d.category==='normal').reduce((s,[,d])=>s+d.count,0);
+  document.getElementById('stats-content').innerHTML = `
+    <div class="grid-3" style="margin-bottom:24px;">
+      <div class="stat-card"><div class="stat-num">${json.total_samples.toLocaleString()}</div><div class="stat-lbl">Total Samples</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent2)">${json.fall_percentage}%</div><div class="stat-lbl">Fall Events</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--ok)">${Object.keys(dist).length}</div><div class="stat-lbl">Activity Classes</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Label Distribution</div>
+        ${distRows}
+      </div>
+      <div class="card">
+        <div class="card-title">Feature Columns</div>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
+          ${json.features.map(f=>`<div style="font-family:var(--mono); font-size:0.8rem; padding:8px 12px; background:var(--bg); border-radius:6px; border:1px solid var(--border); color:var(--accent);">${f}</div>`).join('')}
+        </div>
+        <div class="card-title">Category Summary</div>
+        <div class="dist-item"><span style="font-family:var(--mono);font-size:.8rem;color:var(--accent2);flex:1;">Fall events</span><span style="font-family:var(--mono);font-size:.8rem;">${fallCount}</span></div>
+        <div class="dist-item"><span style="font-family:var(--mono);font-size:.8rem;color:var(--ok);flex:1;">Normal activity</span><span style="font-family:var(--mono);font-size:.8rem;">${normalCount}</span></div>
+      </div>
+    </div>
+  `;
+}
+
+// Drag & drop
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) { document.getElementById('csv-file').files = e.dataTransfer.files; uploadCSV({files: e.dataTransfer.files}); }
+});
+</script>
 </body>
 </html>
