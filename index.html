@@ -123,8 +123,7 @@ td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
 .sos-input-row input:focus{border-color:var(--red)}
 .sos-input-row select{flex:1;background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:7px 11px;color:var(--txt);font-family:var(--mono);font-size:.78rem;outline:none}
 /* SOS overlay — uses normal flow inside a tall wrapper so it fills space */
-.sos-overlay-wrap{display:none;min-height:400px;background:rgba(9,12,16,.92);position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center}
-.sos-overlay-wrap.active{display:flex}
+/* sos-overlay uses inline styles */
 .sos-box{background:#0e1420;border:2px solid var(--red);border-radius:20px;padding:36px 28px;max-width:340px;width:90%;text-align:center;animation:sosPulse 1s ease-in-out infinite alternate}
 @keyframes sosPulse{from{box-shadow:0 0 20px rgba(255,61,107,.3)}to{box-shadow:0 0 50px rgba(255,61,107,.7)}}
 .sos-icon{font-size:3rem;margin-bottom:10px;animation:shake .4s ease-in-out infinite alternate}
@@ -659,7 +658,7 @@ async function triggerSOS(label, conf){
       if(!sosTimer&&sosSecondsLeft>0)return;
       voiceAsked=true;
       setTimeout(function(){
-        if(!document.getElementById('sos-overlay').style.display==='none')return;
+        if(document.getElementById('sos-overlay').style.display==='none')return;
         startListening(function(heard){
           if(!sosTimer&&sosSecondsLeft<=0)return;
           processVoice(heard);
