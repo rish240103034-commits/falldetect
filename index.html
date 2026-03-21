@@ -164,8 +164,19 @@ td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
       <span>Motion Intelligence System</span>
     </div>
   </div>
-  <div class="online-badge"><div class="dot"></div>Model Online</div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <div class="online-badge"><div class="dot"></div>Model Online</div>
+    <button onclick="triggerSOS('FOL',95)" style="padding:6px 14px;background:rgba(255,61,107,0.15);border:1px solid rgba(255,61,107,0.4);border-radius:20px;color:#ff3d6b;font-family:var(--mono);font-size:.65rem;cursor:pointer;font-weight:700">TEST SOS</button>
+  </div>
 </header>
+<div id="debug-bar" style="background:#0e1420;border:1px solid #1e2d45;border-radius:8px;padding:8px 14px;margin-bottom:14px;font-family:var(--mono);font-size:.65rem;color:#4a6080;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+  <span>Debug:</span>
+  <span id="dbg-falls" style="color:#00e5ff">Falls: 0</span>
+  <span id="dbg-conf" style="color:#ffb800">Conf: —</span>
+  <span id="dbg-cat" style="color:#4a6080">Cat: —</span>
+  <span id="dbg-thresh" style="color:#4a6080">Thresh: —</span>
+  <span id="dbg-sos" style="color:#4a6080">SOS: idle</span>
+</div>
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('live',this)">📱 Live Sensor</button>
@@ -898,9 +909,17 @@ async function livePredictNow(){
     const d=await r.json();if(d.error)throw new Error(d.error);
     renderResult('live-result-box','live-prob-list',null,d);
     const cat=(LABEL_MAP[d.label]||{cat:'normal'}).cat;
+    // Debug bar
+    try{
+      document.getElementById('dbg-conf').textContent='Conf: '+d.confidence+'%';
+      document.getElementById('dbg-cat').textContent='Cat: '+cat+' ('+d.label+')';
+      document.getElementById('dbg-thresh').textContent='Thresh: '+getSosThreshold()+'%';
+    }catch(e){}
     if(cat==='fall'){
       setLiveStatus('FALL DETECTED!','fall-alert');
       consecutiveFalls++;
+      try{document.getElementById('dbg-falls').textContent='Falls: '+consecutiveFalls+'/'+SOS_FALL_CONFIRM;}catch(e){}
+      try{document.getElementById('dbg-sos').textContent='SOS: '+(sosTimer?'ACTIVE':'waiting conf='+d.confidence+'>='+getSosThreshold()+'? '+((d.confidence>=getSosThreshold())?'YES':'NO'));}catch(e){}
       if(consecutiveFalls>=SOS_FALL_CONFIRM && d.confidence>=getSosThreshold() && !sosTimer){
         triggerSOS(d.label, d.confidence);
       }
