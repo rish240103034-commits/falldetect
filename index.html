@@ -488,6 +488,292 @@ function addLog(code,name,cat){
 }
 
 /* ── SOS + Voice system ── */
+let sosTimer=null, sosSecondsLeft=0;
+let sosAudioCtx=null, sosBeepInterval=null;
+
+function getSosName(){return document.getElementById('sos-name').value.trim()||'Emergency Contact';}
+function getSosThreshold(){return parseInt(document.getElementById('sos-threshold').value);}
+function getSosCountdown(){return parseInt(document.getElementById('sos-countdown').value);}
+
+function updateSosBadge(){
+  const name=getSosName();
+  const el=document.getElementById('sos-enabled-badge');
+  if(name&&name!=='Emergency Contact'){el.textContent='SOS enabled for '+name;el.style.color='var(--ok)';}
+  else{el.textContent='Enter contact name to enable SOS';el.style.color='var(--muted)';}
+}
+if(document.getElementById('sos-name')) document.getElementById('sos-name').addEventListener('input',updateSosBadge);
+
+/* ── Beep alarm ── */
+function startBeep(){
+  try{
+    sosAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    sosBeepInterval=setInterval(()=>{
+      const o=sosAudioCtx.createOscillator(),g=sosAudioCtx.createGain();
+      o.connect(g);g.connect(sosAudioCtx.destination);
+      o.frequency.value=880;o.type='square';
+      g.gain.setValueAtTime(0.3,sosAudioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,sosAudioCtx.currentTime+0.25);
+      o.start();o.stop(sosAudioCtx.currentTime+0.25);
+    },700);
+  }catch(e){}
+}
+function stopBeep(){
+  if(sosBeepInterval)clearInterval(sosBeepInterval);
+  if(sosAudioCtx)try{sosAudioCtx.close();}catch(e){}
+  sosAudioCtx=null;sosBeepInterval=null;
+}
+
+/* ── Text to speech ── */
+function speak(text, onEnd){
+  try{
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-IN';u.rate=0.9;u.pitch=1;u.volume=1;
+    if(onEnd) u.onend=onEnd;
+    window.speechSynthesis.speak(u);
+  }catch(e){ if(onEnd)onEnd(); }
+}
+
+/* ── Speech recognition ── */
+function startListening(onResult){
+  try{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){ onResult('unsupported'); return; }
+    if(recognition){ try{recognition.stop();}catch(e){} }
+    recognition=new SR();
+    recognition.lang='en-IN';
+    recognition.interimResults=false;
+    recognition.maxAlternatives=3;
+    recognition.continuous=false;
+    document.getElementById('voice-ring').className='voice-ring listening';
+    document.getElementById('voice-status').textContent='Listening... say "I am OK" or "Send Help"';
+    recognition.onresult=function(e){
+      const heard=Array.from(e.results[0]).map(r=>r.transcript).join(' ').toLowerCase();
+      document.getElementById('voice-heard').textContent='"'+heard+'"';
+      document.getElementById('voice-ring').className='voice-ring';
+      document.getElementById('voice-status').textContent='Heard: '+heard;
+      recognition=null;
+      onResult(heard);
+    };
+    recognition.onerror=function(e){
+      document.getElementById('voice-ring').className='voice-ring';
+      document.getElementById('voice-status').textContent='Could not hear — use buttons below';
+      recognition=null;
+      onResult('');
+    };
+    recognition.onend=function(){
+      document.getElementById('voice-ring').className='voice-ring';
+    };
+    recognition.start();
+  }catch(e){
+    document.getElementById('voice-status').textContent='Voice not supported — use buttons';
+    onResult('unsupported');
+  }
+}
+
+function stopListening(){
+  if(recognition)try{recognition.stop();}catch(e){}
+  recognition=null;
+  document.getElementById('voice-ring').className='voice-ring';
+}
+
+/* ── SOS trigger ── */
+function triggerSOS(label,conf){
+  if(sosTimer)return;
+  sosCurrentLabel=label; sosCurrentConf=conf; voiceAsked=false;
+  consecutiveFalls=0;
+  document.getElementById('sos-conf-badge').textContent='confidence: '+conf+'%  —  '+label;
+  document.getElementById('sos-countdown-lbl').textContent='seconds until SOS is sent';
+  document.getElementById('sos-countdown-num').textContent=getSosCountdown();
+  document.getElementById('voice-heard').textContent='';
+  document.getElementById('voice-status').textContent='';
+  document.getElementById('voice-ring').className='voice-ring';
+  document.getElementById('sos-overlay').classList.add('active');
+  sosSecondsLeft=getSosCountdown();
+  startBeep();
+  if(navigator.vibrate)navigator.vibrate([500,200,500,200,500,200,1000]);
+
+  // Speak and then listen
+  speak(
+    'Fall detected! Are you okay? Say I am okay to cancel, or say send help to call '+getSosName(),
+    function(){
+      if(!sosTimer)return;
+      voiceAsked=true;
+      document.getElementById('voice-ring').className='voice-ring speaking';
+      document.getElementById('voice-status').textContent='Asking: Are you okay?';
+      setTimeout(function(){
+        if(!sosTimer)return;
+        startListening(function(heard){
+          if(!sosTimer)return;
+          sendVoiceToBackend(heard);
+        });
+      },400);
+    }
+  );
+
+  // Countdown
+  sosTimer=setInterval(function(){
+    sosSecondsLeft--;
+    document.getElementById('sos-countdown-num').textContent=sosSecondsLeft;
+    if(navigator.vibrate)navigator.vibrate(150);
+    if(sosSecondsLeft<=0){
+      clearInterval(sosTimer);sosTimer=null;
+      sendSOSNow();
+    }
+  },1000);
+}
+
+async function sendVoiceToBackend(heard){
+  if(!heard||heard==='unsupported'||heard===''){
+    document.getElementById('voice-status').textContent='No voice detected — use buttons below';
+    return;
+  }
+  try{
+    const base=getApiBase();
+    const r=await fetch(base+'/voice',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({response:heard,label:sosCurrentLabel,confidence:sosCurrentConf})
+    });
+    const d=await r.json();
+    if(d.action==='cancel'){
+      speak('Okay, SOS cancelled. Stay safe!');
+      setTimeout(cancelSOS,1500);
+    }else if(d.action==='sos'){
+      speak('Help has been alerted. Stay calm, help is on the way!');
+      finishSOS(d.sent,null);
+    }else{
+      document.getElementById('voice-status').textContent='Not understood — say OK or tap Cancel';
+      speak('I did not understand. Say I am okay to cancel, or tap Send SOS now.');
+    }
+  }catch(e){
+    document.getElementById('voice-status').textContent='Backend offline — use buttons below';
+  }
+}
+
+async function sendSOSNow(){
+  if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
+  stopBeep();stopListening();
+  document.getElementById('sos-countdown-num').textContent='SOS';
+  document.getElementById('sos-countdown-lbl').textContent='Sending SMS...';
+  document.getElementById('voice-ring').className='voice-ring';
+  speak('Sending emergency alert now. Help is on the way!');
+  try{
+    const base=getApiBase();
+    const r=await fetch(base+'/sos',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({label:sosCurrentLabel,confidence:sosCurrentConf})
+    });
+    const d=await r.json();
+    finishSOS(d.sent,d.reason);
+  }catch(e){
+    document.getElementById('sos-countdown-lbl').textContent='Backend offline — call manually';
+    speak('Could not reach server. Please call for help manually.');
+  }
+}
+
+function finishSOS(sent,reason){
+  if(sent){
+    document.getElementById('sos-countdown-lbl').textContent='SMS sent to '+getSosName()+'!';
+    document.getElementById('voice-status').textContent='Emergency contact notified via SMS';
+  }else if(reason==='cooldown'){
+    document.getElementById('sos-countdown-lbl').textContent='SMS already sent recently';
+  }else{
+    document.getElementById('sos-countdown-lbl').textContent='SMS failed: '+(reason||'check Twilio credentials');
+  }
+}
+
+function cancelSOS(){
+  if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
+  stopBeep();stopListening();
+  window.speechSynthesis.cancel();
+  consecutiveFalls=0;
+  document.getElementById('sos-overlay').classList.remove('active');
+  document.getElementById('voice-ring').className='voice-ring';
+  document.getElementById('voice-status').textContent='';
+  document.getElementById('voice-heard').textContent='';
+}
+
+async function livePredictNow(){
+  if(!running)return;
+  const f=computeFeatures();updateLiveBars(f);
+  try{
+    const r=await fetch(getApiBase()+'/predict',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(f)
+    });
+    const d=await r.json();
+    if(d.error)throw new Error(d.error);
+    renderResult('live-result-box','live-prob-list',null,d);
+    const meta=LABEL_MAP[d.label]||{cat:'normal'};
+    const cat=meta.cat;
+    if(cat==='fall'){
+      setLiveStatus('FALL DETECTED!','fall-alert');
+      consecutiveFalls++;
+      // Trigger SOS only when confident enough and confirmed twice
+      if(consecutiveFalls>=SOS_FALL_CONFIRM && d.confidence>=getSosThreshold() && !sosTimer){
+        triggerSOS(d.label, d.confidence);
+      }
+    }else{
+      consecutiveFalls=0;
+      if(cat==='stumble') setLiveStatus('Stumble detected','stumble-alert');
+      else setLiveStatus('Monitoring…','listening');
+    }
+    addLog(d.label,(LABEL_MAP[d.label]||{name:d.label}).name,cat);
+  }catch(e){
+    document.getElementById('live-result-box').innerHTML=
+      '<span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">Backend error: '+e.message+'</span>';
+  }
+}
+
+
+function setLiveStatus(txt,cls){
+  const el=document.getElementById('live-status');el.className='sensor-status '+cls;
+  document.getElementById('live-status-txt').textContent=txt;
+  const dot=document.getElementById('live-dot');
+  dot.style.background=cls==='listening'?'var(--acc)':cls==='fall-alert'?'var(--red)':cls==='stumble-alert'?'var(--warn)':'var(--muted)';
+  dot.style.animation=cls==='idle'?'none':'pulse 1.4s ease-in-out infinite';
+}
+
+function clamp01(v,max){return Math.max(0,Math.min(100,v/max*100));}
+
+function updateLiveBars(f){
+  document.getElementById('lb-acc').style.width=clamp01(f.acc_max,45)+'%';
+  document.getElementById('lb-gyro').style.width=clamp01(f.gyro_max,20)+'%';
+  document.getElementById('lb-lin').style.width=clamp01(f.lin_max,25)+'%';
+  document.getElementById('lb-kurt').style.width=clamp01(Math.abs(f.acc_kurtosis),60)+'%';
+  document.getElementById('lv-acc').textContent=f.acc_max.toFixed(2);
+  document.getElementById('lv-gyro').textContent=f.gyro_max.toFixed(2);
+  document.getElementById('lv-lin').textContent=f.lin_max.toFixed(2);
+  document.getElementById('lv-kurt').textContent=Math.abs(f.acc_kurtosis).toFixed(2);
+}
+
+function drawWave(){
+  const canvas=document.getElementById('liveWave');if(!canvas)return;
+  const W=canvas.offsetWidth||600,H=88,dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.fillStyle='#090c10';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(30,45,69,.4)';ctx.lineWidth=.5;
+  [H/4,H/2,H*3/4].forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();});
+  [{k:'x',c:'#378ADD'},{k:'y',c:'#1D9E75'},{k:'z',c:'#EF9F27'}].forEach(({k,c})=>{
+    const arr=waveBuf[k];if(arr.length<2)return;
+    ctx.beginPath();ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.globalAlpha=.9;
+    arr.forEach((v,i)=>{const x=i/(arr.length-1)*W,y=H/2-(v/20)*H/2;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.stroke();ctx.globalAlpha=1;
+  });
+}
+
+function addLog(code,name,cat){
+  const now=new Date();
+  const t=[now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>n.toString().padStart(2,'0')).join(':');
+  logItems.unshift({t,code,name,cat});if(logItems.length>30)logItems.pop();
+  document.getElementById('live-log').innerHTML=logItems.map(e=>`<div class="log-row"><span class="log-t">${e.t}</span><span style="color:${e.cat==='fall'?'var(--red)':e.cat==='stumble'?'var(--warn)':'var(--ok)'};font-weight:700">${e.code}</span><span>${e.name}</span></div>`).join('');
+}
+
+/* ── SOS + Voice system ── */
 let sosTimer=null, sosSecondsLeft=0, sosAudioCtx=null, sosBeepInterval=null;
 let consecutiveFalls=0, sosCurrentLabel='', sosCurrentConf=0;
 const SOS_FALL_CONFIRM=2;
