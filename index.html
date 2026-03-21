@@ -292,14 +292,7 @@ tr:hover td{background:rgba(191,0,255,.04)}
 .dist-bar{height:100%;border-radius:0}
 .dist-cnt{font-family:var(--mono);font-size:.65rem;color:var(--muted);width:34px;text-align:right}
 
-/* Debug bar */
-#dbg{
-  background:linear-gradient(90deg,rgba(22,0,48,.9),rgba(13,0,32,.9));
-  border:1px solid rgba(74,26,128,.5);border-radius:4px;
-  padding:8px 14px;margin-bottom:14px;font-family:var(--mono);font-size:.6rem;color:var(--muted);
-  display:flex;gap:14px;flex-wrap:wrap;align-items:center;
-  box-shadow:0 4px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.03);
-}
+
 
 /* SOS overlay */
 #sos-overlay{
@@ -397,16 +390,7 @@ tr:hover td{background:rgba(191,0,255,.04)}
   </div>
 </header>
 
-<!-- Debug bar -->
-<div id="dbg">
-  <span style="color:var(--acc)">Debug</span>
-  <span>Falls: <b id="d-falls" style="color:var(--acc)">0</b>/2</span>
-  <span>Conf: <b id="d-conf" style="color:var(--warn)">—</b></span>
-  <span>Cat: <b id="d-cat">—</b></span>
-  <span>Thresh: <b id="d-thresh">80%</b></span>
-  <span>SOS: <b id="d-sos">idle</b></span>
-  <span>Backend: <b id="d-backend" style="color:var(--muted)">untested</b></span>
-</div>
+
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('live',this)">&#x1F4F1; Live Sensor</button>
@@ -447,7 +431,7 @@ tr:hover td{background:rgba(191,0,255,.04)}
         <div class="field-row"><label>Contact name</label><input id="sos-name" style="flex:1" placeholder="e.g. Mom" value="Mom"/></div>
         <div class="field-row"><label>Min confidence</label>
           <select id="sos-threshold" style="flex:1">
-            <option value="55">55%</option><option value="70">70%</option>
+            <option value="60">60%</option><option value="70">70%</option>
             <option value="80" selected>80% — recommended</option><option value="90">90%</option>
           </select>
         </div>
@@ -457,17 +441,14 @@ tr:hover td{background:rgba(191,0,255,.04)}
             <option value="15">15 sec</option><option value="20">20 sec</option>
           </select>
         </div>
-        <div style="font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:8px;line-height:1.7">
-          SMS sent via Twilio. Set credentials in Colab Cell 3.<br/>
-          Fall confirmed 2x above threshold triggers SOS countdown.
-        </div>
+        
       </div>
 
       <!-- Backend URL -->
       <div class="card">
         <div class="card-lbl">Backend URL</div>
         <div class="url-row">
-          <input class="url-inp" id="api-url" value="https://island-guild-grant-mug.trycloudflare.com/api/predict"/>
+          <input class="url-inp" id="api-url" value="https://ids-till-phi-electric.trycloudflare.com/api/predict"/>
           <button class="btn btn-ghost" onclick="testConn()" style="white-space:nowrap">Test</button>
         </div>
         <div id="conn-msg" style="font-family:var(--mono);font-size:.65rem;margin-top:6px;color:var(--muted)"></div>
@@ -598,15 +579,12 @@ function renderResult(boxId,probId,json){
 /* ── Backend test ── */
 async function testConn(){
   const el=$$("conn-msg");el.textContent="Testing…";el.style.color="var(--muted)";
-  $$("d-backend").textContent="testing...";$$("d-backend").style.color="var(--warn)";
   try{
     const r=await fetch(getBase()+"/predict",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({acc_max:26,gyro_max:7,lin_max:11,acc_kurtosis:20,gyro_kurtosis:3,acc_skewness:4,gyro_skewness:1.6,post_gyro_max:7,post_lin_max:11})});
     const d=await r.json();
     el.style.color="var(--ok)";el.textContent="Connected — got: "+d.label+" ("+d.confidence+"%)";
-    $$("d-backend").textContent="OK";$$("d-backend").style.color="var(--ok)";
   }catch(e){
     el.style.color="var(--red)";el.textContent="Failed: "+e.message;
-    $$("d-backend").textContent="FAIL";$$("d-backend").style.color="var(--red)";
   }
 }
 
@@ -727,29 +705,22 @@ async function livePredictNow(){
     const meta=LABEL_MAP[d.label]||{name:d.label,cat:"normal"};
     const cat=meta.cat;
 
-    // Debug bar
-    $$("d-conf").textContent=d.confidence+"%";
-    $$("d-cat").textContent=cat+" ("+d.label+")";
-    $$("d-thresh").textContent=getSosThreshold()+"%";
 
     if(cat==="fall"){
       $$("live-status").textContent="Status: FALL DETECTED!";$$("live-status").style.color="var(--red)";
       consecutiveFalls++;
-      $$("d-falls").textContent=consecutiveFalls;
       const confOk=d.confidence>=getSosThreshold();
-      $$("d-sos").textContent="conf="+d.confidence+">="+getSosThreshold()+"? "+(confOk?"YES":"NO");
       if(confOk && !sosTimer){
         triggerSOS(d.label,d.confidence);
       }
     }else{
-      consecutiveFalls=0;$$("d-falls").textContent=0;$$("d-sos").textContent="idle";
+      consecutiveFalls=0;
       if(cat==="stumble"){$$("live-status").textContent="Status: Stumble";$$("live-status").style.color="var(--warn)";}
       else{$$("live-status").textContent="Status: Normal";$$("live-status").style.color="var(--ok)";}
     }
     addLog(d.label,meta.name,cat);
   }catch(e){
     $$("live-result").innerHTML='<span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">Error: '+e.message+'</span>';
-    $$("d-backend").textContent="ERR";$$("d-backend").style.color="var(--red)";
   }
 }
 
@@ -892,7 +863,6 @@ async function triggerSOS(label,conf){
   $$("sos-num").textContent=sosSecondsLeft;
   updateRing(sosSecondsLeft,sosTotal);
   $$("sos-overlay").style.display="flex";
-  $$("d-sos").textContent="SOS ACTIVE";$$("d-sos").style.color="var(--red)";
   startBeep();
   if(navigator.vibrate)navigator.vibrate([400,150,400,150,400,150,800]);
   getGPS();
@@ -932,7 +902,7 @@ function cancelSOS(){
   if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
   stopBeep();stopListening();window.speechSynthesis.cancel();
   sosListening=false;
-  consecutiveFalls=0;$$("d-falls").textContent=0;$$("d-sos").textContent="idle";$$("d-sos").style.color="";
+  consecutiveFalls=0;
   $$("sos-overlay").style.display="none";
 }
 </script>
