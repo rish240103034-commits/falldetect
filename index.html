@@ -177,7 +177,7 @@ td{padding:8px 12px;border-bottom:1px solid rgba(30,45,69,.4)}
         <div class="field-row"><label>Contact name</label><input id="sos-name" style="flex:1" placeholder="e.g. Mom" value="Mom"/></div>
         <div class="field-row"><label>Min confidence</label>
           <select id="sos-threshold" style="flex:1">
-            <option value="40">40%</option><option value="50">50%</option>
+            <option value="60">60%</option><option value="70">70%</option>
             <option value="80" selected>80% — recommended</option><option value="90">90%</option>
           </select>
         </div>
@@ -197,7 +197,7 @@ td{padding:8px 12px;border-bottom:1px solid rgba(30,45,69,.4)}
       <div class="card">
         <div class="card-lbl">Backend URL</div>
         <div class="url-row">
-          <input class="url-inp" id="api-url" value="https://island-guild-grant-mug.trycloudflare.com/api/predict"/>
+          <input class="url-inp" id="api-url" value="https://ids-till-phi-electric.trycloudflare.com/api/predict"/>
           <button class="btn btn-ghost" onclick="testConn()" style="white-space:nowrap">Test</button>
         </div>
         <div id="conn-msg" style="font-family:var(--mono);font-size:.65rem;margin-top:6px;color:var(--muted)"></div>
@@ -575,7 +575,12 @@ function startListening(onResult){
       recognition=null;onResult(heard);
     };
     recognition.onerror=function(){$$("v-status").textContent="Could not hear — use buttons";recognition=null;onResult("");};
-    recognition.onend=function(){};
+    recognition.onend=function(){
+      // If SOS overlay still open and no result yet, keep listening
+      if($$("sos-overlay").style.display==="flex" && sosTimer){
+        setTimeout(function(){startListening(processVoice);},800);
+      }
+    };
     recognition.start();
   }catch(e){$$("v-status").textContent="Mic not available — use buttons";onResult("");}
 }
