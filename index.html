@@ -467,8 +467,8 @@ async function livePredictNow(){
       consecutiveFalls++;
       $$("d-falls").textContent=consecutiveFalls;
       const confOk=d.confidence>=getSosThreshold();
-      $$("d-sos").textContent="falls="+consecutiveFalls+"/"+SOS_FALL_CONFIRM+" conf="+d.confidence+">="+getSosThreshold()+"? "+(confOk?"YES":"NO");
-      if(consecutiveFalls>=SOS_FALL_CONFIRM && confOk && !sosTimer){
+      $$("d-sos").textContent="conf="+d.confidence+">="+getSosThreshold()+"? "+(confOk?"YES":"NO");
+      if(confOk && !sosTimer){
         triggerSOS(d.label,d.confidence);
       }
     }else{
