@@ -177,7 +177,7 @@ td{padding:8px 12px;border-bottom:1px solid rgba(30,45,69,.4)}
         <div class="field-row"><label>Contact name</label><input id="sos-name" style="flex:1" placeholder="e.g. Mom" value="Mom"/></div>
         <div class="field-row"><label>Min confidence</label>
           <select id="sos-threshold" style="flex:1">
-            <option value="50">50%</option><option value="70">70%</option>
+            <option value="55">55%</option><option value="70">70%</option>
             <option value="80" selected>80% — recommended</option><option value="90">90%</option>
           </select>
         </div>
@@ -527,6 +527,7 @@ function stopSensors(){
    SOS + VOICE
 ══════════════════════════════════════════ */
 let sosTimer=null, sosSecondsLeft=0, sosTotal=10;
+let sosListening=false;
 let sosAudioCtx=null, sosBeepInterval=null;
 let sosLabel="", sosConf=0, sosGps=null;
 let recognition=null;
@@ -576,9 +577,13 @@ function startListening(onResult){
     };
     recognition.onerror=function(){$$("v-status").textContent="Could not hear — use buttons";recognition=null;onResult("");};
     recognition.onend=function(){
-      // If SOS overlay still open and no result yet, keep listening
-      if($$("sos-overlay").style.display==="flex" && sosTimer){
-        setTimeout(function(){startListening(processVoice);},800);
+      // Keep listening as long as SOS overlay is visible
+      if(sosListening && $$("sos-overlay").style.display==="flex"){
+        setTimeout(function(){
+          if(sosListening && $$("sos-overlay").style.display==="flex"){
+            startListening(processVoice);
+          }
+        },600);
       }
     };
     recognition.start();
@@ -623,6 +628,7 @@ async function triggerSOS(label,conf){
   getGPS();
   speak("Fall detected! Are you okay? Say I am okay to cancel, or I will send help in "+sosTotal+" seconds.",function(){
     if($$("sos-overlay").style.display==="none")return;
+    sosListening=true;
     setTimeout(function(){startListening(processVoice);},400);
   });
   sosTimer=setInterval(function(){
@@ -636,6 +642,7 @@ async function triggerSOS(label,conf){
 
 async function sendSOSNow(){
   if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
+  sosListening=false;
   stopBeep();stopListening();
   $$("sos-num").textContent="SOS";$$("sos-lbl").textContent="Sending SMS…";
   speak("Sending emergency alert. Help is on the way!");
@@ -654,6 +661,7 @@ async function sendSOSNow(){
 function cancelSOS(){
   if(sosTimer){clearInterval(sosTimer);sosTimer=null;}
   stopBeep();stopListening();window.speechSynthesis.cancel();
+  sosListening=false;
   consecutiveFalls=0;$$("d-falls").textContent=0;$$("d-sos").textContent="idle";$$("d-sos").style.color="";
   $$("sos-overlay").style.display="none";
 }
