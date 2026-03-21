@@ -231,19 +231,32 @@ td{padding:9px 13px;border-bottom:1px solid rgba(30,45,69,.4)}
       <div class="sos-setup-title">SOS via Twilio SMS</div>
       <div class="sos-input-row">
         <label>Contact name</label>
-        <input id="sos-name" placeholder="e.g. Mom" value=""/>
+        <input id="sos-name" placeholder="e.g. Mom" value="Mom"/>
       </div>
-      <div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:10px;line-height:1.9">
-        <b style="color:var(--acc)">One-time Twilio setup:</b><br/>
-        1. Go to <b style="color:var(--acc)">twilio.com/try-twilio</b> — free trial, no credit card<br/>
-        2. Verify your phone number (this is the number that receives SMS)<br/>
-        3. Copy your <b style="color:var(--acc)">Account SID</b>, <b style="color:var(--acc)">Auth Token</b>, and <b style="color:var(--acc)">Twilio number</b><br/>
-        4. Paste them into <b style="color:var(--acc)">Cell 3</b> of the Colab notebook<br/>
-        5. SMS is sent automatically when fall is detected
+      <div class="sos-input-row">
+        <label>Min confidence</label>
+        <select id="sos-threshold">
+          <option value="60">60% — trigger often</option>
+          <option value="70">70%</option>
+          <option value="80" selected>80% — recommended</option>
+          <option value="90">90% — very sure only</option>
+        </select>
       </div>
-    </div></div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <span id="sos-enabled-badge" style="font-family:var(--mono);font-size:.68rem;color:var(--muted)">Enter phone number to enable SOS</span>
+      <div class="sos-input-row">
+        <label>Countdown</label>
+        <select id="sos-countdown">
+          <option value="5">5 seconds</option>
+          <option value="10" selected>10 seconds</option>
+          <option value="15">15 seconds</option>
+          <option value="20">20 seconds</option>
+        </select>
+      </div>
+      <div style="font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:8px;line-height:1.7">
+        SMS sent via Twilio backend when fall confirmed. Set credentials in Colab Cell 3.
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+      <span id="sos-enabled-badge" style="font-family:var(--mono);font-size:.68rem;color:var(--ok)">SOS active — SMS will be sent on fall</span>
     </div>
   </div>
 
@@ -493,8 +506,8 @@ let sosTimer=null, sosSecondsLeft=0;
 let sosAudioCtx=null, sosBeepInterval=null;
 
 function getSosName(){return document.getElementById('sos-name').value.trim()||'Emergency Contact';}
-function getSosThreshold(){return parseInt(document.getElementById('sos-threshold').value);}
-function getSosCountdown(){return parseInt(document.getElementById('sos-countdown').value);}
+function getSosThreshold(){const el=document.getElementById('sos-threshold');return el?parseInt(el.value):80;}
+function getSosCountdown(){const el=document.getElementById('sos-countdown');return el?parseInt(el.value):10;}
 
 function updateSosBadge(){
   const name=getSosName();
