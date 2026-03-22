@@ -138,6 +138,9 @@ tr:hover td{background:rgba(191,0,255,.04)}
 .sos-btn-cancel{width:100%;padding:10px;background:transparent;border:1px solid rgba(57,255,20,.4);border-radius:3px;color:var(--ok);font-family:var(--display);font-weight:600;font-size:.72rem;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 4px 0 rgba(0,60,0,.8),inset 0 1px 0 rgba(57,255,20,.1);transition:all .15s;text-shadow:var(--glow-green);}
 .sos-btn-cancel:hover{background:rgba(57,255,20,.08);transform:translateY(-1px);box-shadow:0 5px 0 rgba(0,60,0,.8),var(--glow-green)}
 .sos-btn-cancel:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,60,0,.8)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--red);box-shadow:var(--glow-pink);cursor:pointer;border:2px solid rgba(255,45,120,.4)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--red);box-shadow:var(--glow-pink);cursor:pointer;border:2px solid rgba(255,45,120,.4)}
+input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:0}
 @media(max-width:680px){.g2,.form-g{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}.sg-grid{grid-template-columns:repeat(3,1fr)}.card{transform:none}.tabs{transform:none}.badge-ok{transform:none}}
 </style>
 </head>
@@ -188,11 +191,21 @@ tr:hover td{background:rgba(191,0,255,.04)}
       <div class="card" style="border-color:rgba(255,61,107,.25)">
         <div class="card-lbl" style="color:var(--red)">SOS Settings</div>
         <div class="field-row"><label>Contact name</label><input id="sos-name" style="flex:1" placeholder="e.g. Mom" value="Mom"/></div>
-        <div class="field-row"><label>Min confidence</label>
-          <select id="sos-threshold" style="flex:1">
-            <option value="55">55%</option><option value="70">70%</option>
-            <option value="80" selected>80% — recommended</option><option value="90">90%</option>
-          </select>
+        <div class="field-row" style="align-items:center">
+          <label>Min confidence</label>
+          <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <input type="range" id="sos-threshold" min="50" max="95" step="5" value="80"
+                oninput="$$('sos-thresh-val').textContent=this.value+'%'"
+                style="flex:1;-webkit-appearance:none;appearance:none;height:5px;border-radius:0;
+                  background:linear-gradient(90deg,var(--red) 0%,var(--red) calc((var(--v,60)-50)/45*100%),rgba(74,26,128,.4) calc((var(--v,60)-50)/45*100%));
+                  outline:none;cursor:pointer"/>
+              <span id="sos-thresh-val" style="font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--red);min-width:38px;text-align:right">80%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.55rem;color:var(--muted);padding:0 2px">
+              <span>30%</span><span>55%</span><span>70%</span><span>85%</span>
+            </div>
+          </div>
         </div>
         <div class="field-row"><label>Countdown</label>
           <select id="sos-countdown" style="flex:1">
